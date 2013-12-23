@@ -8,24 +8,24 @@ class CommonJS : public QObject
 {
     Q_OBJECT
     Q_DISABLE_COPY(CommonJS)
+    Q_PROPERTY(QJSValue cache READ cache)
 
 public:
     explicit CommonJS(QQmlEngine *engine, QJSEngine *scriptEngine);
 
     Q_INVOKABLE QJSValue require(QString url);
     Q_INVOKABLE QString resolvedUrl(QString url, QString base = "");
+    QJSValue cache() { return m_cache; }
 
-    // Pseudo-private function that are only public
+    // Pseudo-private function that is only public
     // so that javascript code will have access to them
-    Q_INVOKABLE QJSValue __cachedRequire(QString resolvedUrl);
-    Q_INVOKABLE void __addCachedRequire(QString resolvedUrl, QJSValue value);
     Q_INVOKABLE QString __loadFile(QString url);
 
 protected:
+    QJSValue m_cache;
     QString m_requireTemplate;
     QQmlEngine *m_engine;
     QJSEngine *m_scriptEngine;
-    QHash <QString, QJSValue> m_cache;
 };
 
 #endif // COMMONJS_H

@@ -5,6 +5,7 @@ CommonJS::CommonJS(QQmlEngine *engine, QJSEngine *scriptEngine)
     : QObject(NULL), m_engine(engine), m_scriptEngine(scriptEngine)
 {
     m_requireTemplate = __loadFile(":/templates/require.js");
+    m_cache = engine->newObject();
 }
 
 
@@ -18,16 +19,6 @@ QJSValue CommonJS::require(QString url)
     QString p(m_requireTemplate);
     p = p.arg(resolvedUrl(url));
     return m_engine->evaluate(p, "snippet");
-}
-
-QJSValue CommonJS::__cachedRequire(QString resolvedUrl)
-{
-    return m_cache.value(resolvedUrl, QJSValue(QJSValue::UndefinedValue));
-}
-
-void CommonJS::__addCachedRequire(QString resolvedUrl, QJSValue value)
-{
-    m_cache.insert(resolvedUrl, value);
 }
 
 QString CommonJS::__loadFile(QString url)
