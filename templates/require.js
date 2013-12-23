@@ -1,4 +1,6 @@
-function doRequire(__filename) {
+function doRequire(__filename, base) {
+
+    __filename = CommonJS.resolve(__filename, base);
 
     // first checking cache
     if(CommonJS.cache[__filename]) {
@@ -16,8 +18,7 @@ function doRequire(__filename) {
     // for nested require calls we need to adjust
     // base path so that relative require calls work
     var require = (function(base, url) {
-        url = CommonJS.resolve(url, base);
-        return doRequire.call(global, url);
+        return doRequire.call(global, url, base);
     }).bind(global, __filename);
 
     // Providing require globals described here:
@@ -39,6 +40,3 @@ function doRequire(__filename) {
     // Providing user with the result
     return module.exports;
 }
-
-// bootstrapping
-doRequire.call(CommonJS.global, '%1');

@@ -4,22 +4,8 @@
 CommonJS::CommonJS(QQmlEngine *engine, QJSEngine *scriptEngine)
     : QObject(NULL), m_engine(engine), m_scriptEngine(scriptEngine)
 {
-    m_requireTemplate = __loadFile(":/templates/require.js");
     m_cache = engine->newObject();
     m_global = engine->newObject();
-}
-
-
-/**
- * @brief Provides node.js require functionality from C++ or QML
- * @param url
- * @return
- */
-QJSValue CommonJS::require(QString url)
-{
-    QString p(m_requireTemplate);
-    p = p.arg(resolve(url));
-    return m_engine->evaluate(p, "snippet");
 }
 
 QString CommonJS::__loadFile(QString url)
@@ -52,10 +38,26 @@ QString CommonJS::resolve(QString url, QString base)
         // since there's no direct access to Qt.resolvedUrl method
         QString program = QString("Qt.resolvedUrl('%1')").arg(url);
         url = m_engine->evaluate(program).toVariant().toUrl().toLocalFile();
-    } else {
-        if(url.left(2) == "./") {
-            url = QFileInfo(base).absolutePath() + url.mid(1);
-        }
+    }
+
+    if(url.left(2) == "./") { // relative path
+        url = QFileInfo(base).absolutePath() + url.mid(1);
+    } else if(url.at(0) != '/') { // not relative or absolute
+
     }
     return url;
+}
+
+/**
+ * @brief Returns QJSValue containing compiled version
+ * of 'require' CommonJS function.
+ * @return
+ */
+QJSValue CommonJS::require()
+{
+    if(m_require.isUndefined()) {
+        QString requireCode = __loadFile(":/templates/require.js");
+        m_require = m_engine->evaluate("(" + requireCode + ")");
+    }
+    return m_require;
 }
