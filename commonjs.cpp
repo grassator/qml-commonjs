@@ -40,8 +40,9 @@ QString CommonJS::resolve(QString url, QString base)
         url = m_engine->evaluate(program).toVariant().toUrl().toLocalFile();
     }
 
-    if(url.left(2) == "./") { // relative path
-        url = QFileInfo(base).absolutePath() + url.mid(1);
+    if(url.left(2) == "./" || url.left(3) == "../") { // relative path
+        url = QFileInfo(base).absolutePath() + "/" + url.mid(1);
+        url = QDir::cleanPath(url);
     } else if(url.at(0) != '/') { // not relative or absolute
 
     }
