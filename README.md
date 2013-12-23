@@ -2,7 +2,14 @@ Experiment in adding CommonJS support to QML.
 
 ## What works
 
-Right now only basic `require()` statement for requiring files (not modules). No cyclic dependency checks.
+### Some "require" stuff
+
+* Basic `require('./somefile.js')` statement for requiring files by relative path.
+* `require.resolve`
+* `require.cache`
+
+When accessing these functions from QML, you have to use `CommonJS.` prefix because Qt doesn't allow defining global functions.
+
 
 ## Goals
 
@@ -34,5 +41,3 @@ After that you should be able to just import CommonJS as regular QML library and
             var example = CommonJS.require('./example.js');
         }
     }
-
-Inside QML it has to be called as `CommonJS.require` because it is impossible to define top-level function. Inside required code `require` is available as global function.

@@ -14,7 +14,7 @@ public:
     explicit CommonJS(QQmlEngine *engine, QJSEngine *scriptEngine);
 
     Q_INVOKABLE QJSValue require(QString url);
-    Q_INVOKABLE QString resolvedUrl(QString url, QString base = "");
+    Q_INVOKABLE QString resolve(QString url, QString base = "");
     QJSValue cache() { return m_cache; }
 
     // Pseudo-private function that is only public

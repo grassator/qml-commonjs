@@ -17,7 +17,7 @@ CommonJS::CommonJS(QQmlEngine *engine, QJSEngine *scriptEngine)
 QJSValue CommonJS::require(QString url)
 {
     QString p(m_requireTemplate);
-    p = p.arg(resolvedUrl(url));
+    p = p.arg(resolve(url));
     return m_engine->evaluate(p, "snippet");
 }
 
@@ -44,7 +44,7 @@ QString CommonJS::__loadFile(QString url)
  * @param base
  * @return
  */
-QString CommonJS::resolvedUrl(QString url, QString base)
+QString CommonJS::resolve(QString url, QString base)
 {
     if(base.isEmpty()) {
         // This is the easiest way to get resolved url

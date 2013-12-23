@@ -1,26 +1,30 @@
 function doRequire(resolvedUrl) {
 
     // first checking cache
-    var cached = CommonJS.cache[resolvedUrl];
-    if(cached) {
-        return cached;
+    var cachedModule = CommonJS.cache[resolvedUrl];
+    if(cachedModule) {
+        return cachedModule.exports;
     }
 
     // Setting up expected global variables
     var module = { exports: {} };
     var exports = module.exports;
 
+    // Adding to cache right away to
+    // deal with cyclic dependencies
+    CommonJS.cache[resolvedUrl] = module;
+
     // for nested require calls we need to adjust
     // base path so that relative require calls work
     var require = (function(base, url) {
-        url = CommonJS.resolvedUrl(url, base);
+        url = CommonJS.resolve(url, base);
         return doRequire(url);
     }).bind(this, resolvedUrl);
 
     // Providing require globals described here:
     // http://nodejs.org/api/globals.html#globals_require
     require.cache = CommonJS.cache;
-    require.resolve = CommonJS.resolvedUrl;
+    require.resolve = CommonJS.resolve;
 
     // Evaluating require'd code. It would be better
     // to use QJSEngine::evaluate but unfortunately
@@ -29,9 +33,6 @@ function doRequire(resolvedUrl) {
 
     // @disable-check M23
     eval(code);
-
-    // Adding to cache
-    CommonJS.cache[resolvedUrl] = module.exports;
 
     // Providing user with the result
     return module.exports;
