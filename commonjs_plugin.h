@@ -10,6 +10,7 @@ class CommonJSPlugin : public QQmlExtensionPlugin
 
 public:
     void registerTypes(const char *uri);
+    ~CommonJSPlugin();
 };
 
 #endif // COMMONJS_PLUGIN_H

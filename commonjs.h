@@ -10,8 +10,7 @@ class CommonJS : public QObject
     Q_DISABLE_COPY(CommonJS)
 
 public:
-    explicit CommonJS(QQmlEngine *engine, QJSEngine *scriptEngine)
-        : QObject(NULL), m_engine(engine), m_scriptEngine(scriptEngine) {}
+    explicit CommonJS(QQmlEngine *engine, QJSEngine *scriptEngine);
 
     Q_INVOKABLE QJSValue require(QString url);
     Q_INVOKABLE QString resolvedUrl(QString url, QString base = "");
@@ -23,6 +22,7 @@ public:
     Q_INVOKABLE QString __loadFile(QString url);
 
 protected:
+    QString m_requireTemplate;
     QQmlEngine *m_engine;
     QJSEngine *m_scriptEngine;
     QHash <QString, QJSValue> m_cache;

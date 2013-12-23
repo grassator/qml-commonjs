@@ -1,4 +1,12 @@
 #include "commonjs.h"
+#include <QDebug>
+
+CommonJS::CommonJS(QQmlEngine *engine, QJSEngine *scriptEngine)
+    : QObject(NULL), m_engine(engine), m_scriptEngine(scriptEngine)
+{
+    m_requireTemplate = __loadFile(":/templates/require.js");
+}
+
 
 /**
  * @brief Provides node.js require functionality from C++ or QML
@@ -7,41 +15,7 @@
  */
 QJSValue CommonJS::require(QString url)
 {
-    QString p;
-    p =     "function doRequire(resolvedUrl) { \n"
-            // first checking cache
-            "  var cached = CommonJS.__cachedRequire(resolvedUrl); \n"
-            "  if(typeof(cached) !== 'undefined') { \n"
-            "    return cached; \n"
-            "  } \n"
-
-            // Setting up expected global variables
-            "  var module = { exports: {} }; \n"
-            "  var exports = module.exports; \n"
-
-            // for nested require calls we need to adjust
-            // base path so that relative require calls work
-            "  var require = (function(base, url) { \n"
-            "    url = CommonJS.resolvedUrl(url, base); \n"
-            "    return doRequire(url); \n"
-            "  }).bind(this, resolvedUrl); \n"
-
-            // Evaluating require'd code. It would be better
-            // to use QJSEngine::evaluate but unfortunately
-            // it doesn't support nested calls
-            "  var code = CommonJS.__loadFile(resolvedUrl); \n"
-            "  eval(code); \n"
-
-            // Adding to cache
-            "  CommonJS.__addCachedRequire(resolvedUrl, module.exports); "
-
-            // Providing user with the result
-            "  return module.exports; \n"
-            "} \n"
-
-            // bootstrapping
-            "doRequire('%1'); \n";
-
+    QString p(m_requireTemplate);
     p = p.arg(resolvedUrl(url));
     return m_engine->evaluate(p, "snippet");
 }
