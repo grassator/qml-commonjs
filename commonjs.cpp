@@ -6,6 +6,7 @@ CommonJS::CommonJS(QQmlEngine *engine, QJSEngine *scriptEngine)
 {
     m_requireTemplate = __loadFile(":/templates/require.js");
     m_cache = engine->newObject();
+    m_global = engine->newObject();
 }
 
 
