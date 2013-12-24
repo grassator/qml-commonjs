@@ -59,6 +59,12 @@ QJSValue CommonJS::require()
     if(m_require.isUndefined()) {
         QString requireCode = __loadFile(":/templates/require.js");
         m_require = m_engine->evaluate("(" + requireCode + ")");
+
+        // Making CommonJS singleton availabe inside require
+        // function to be able to refer back to it without
+        // relying on CommonJS QML module being imported into
+        // global namespace (without `as SomeIdentifier`)
+        m_require.setProperty("__native", m_engine->newQObject(this));
     }
     return m_require;
 }
