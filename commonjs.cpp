@@ -1,13 +1,23 @@
 #include "commonjs.h"
 #include <QDebug>
 
+/**
+ * @brief Singleton class exposed to QML context
+ * @param engine
+ * @param scriptEngine
+ */
 CommonJS::CommonJS(QQmlEngine *engine, QJSEngine *scriptEngine)
     : QObject(NULL), m_engine(engine), m_scriptEngine(scriptEngine)
 {
-    m_cache = engine->newObject();
-    m_global = engine->newObject();
+    m_cache = m_scriptEngine->newObject();
+    m_global = m_scriptEngine->newObject();
 }
 
+/**
+ * @internal
+ * @param url
+ * @return
+ */
 QString CommonJS::__loadFile(QString url)
 {
     QFile file(url);
@@ -33,38 +43,67 @@ QString CommonJS::__loadFile(QString url)
  */
 QString CommonJS::resolve(QString url, QString base)
 {
-    if(base.isEmpty()) {
-        // This is the easiest way to get resolved url
-        // since there's no direct access to Qt.resolvedUrl method
-        QString program = QString("Qt.resolvedUrl('%1')").arg(url);
-        url = m_engine->evaluate(program).toVariant().toUrl().toLocalFile();
+    // removing prefix from file urls if present
+    if(url.left(7) == "file://") {
+        url = url.mid(7);
     }
 
-    if(url.left(2) == "./" || url.left(3) == "../") { // relative path
-        url = QFileInfo(base).absolutePath() + "/" + url.mid(1);
-        url = QDir::cleanPath(url);
-    } else if(url.at(0) != '/') { // not relative or absolute
-
-    }
+    // resolving relative path
+    if(url.left(2) == "./" || url.left(3) == "../") {
+        url = QDir::cleanPath(QFileInfo(base).absolutePath() + "/" + url);
+    } else
+        // Else if not absolute or qrc path then try more complex resolving
+        if(url.at(0) != '/' && url.left(2) != ":/") {
+            // FIXME need to implement this
+        }
     return url;
 }
 
 /**
- * @brief Returns QJSValue containing compiled version
- * of 'require' CommonJS function.
+ * @brief Returns QJSValue representing required js file module.exports
+ * @param url
  * @return
  */
-QJSValue CommonJS::require()
+QJSValue CommonJS::require(QString url)
 {
-    if(m_require.isUndefined()) {
-        QString requireCode = __loadFile(":/templates/require.js");
-        m_require = m_engine->evaluate("(" + requireCode + ")");
+    // Getting resolved path relative to calling QML file
+    QString program = QString("Qt.resolvedUrl('%1')").arg(url);
+    url = m_scriptEngine->evaluate(program).toVariant().toUrl().toLocalFile();
 
-        // Making CommonJS singleton availabe inside require
-        // function to be able to refer back to it without
-        // relying on CommonJS QML module being imported into
-        // global namespace (without `as SomeIdentifier`)
-        m_require.setProperty("__native", m_engine->newQObject(this));
+    if(m_require.isUndefined()) {
+        initRequireJSCode();
     }
-    return m_require;
+    return m_require.call(QJSValueList() << url);
+}
+
+/**
+ * @brief Compiles require js support code in an empty context
+ * @internal
+ */
+void CommonJS::initRequireJSCode()
+{
+    // Creating component in an empty context so that required code
+    // won't affect any global variables defined in calling context
+    QQmlContext *context = new QQmlContext(m_engine);
+    QQmlComponent component(m_engine);
+
+    // Composing lightest possible QML component
+    // that will host our require function
+    QString requireCode = "import QtQuick 2.0; QtObject { %1 }";
+
+    // defining require function as method to that component
+    requireCode = requireCode.arg(__loadFile(":/templates/require.js"));
+
+    // Now creating the component to compile our require functions
+    component.setData(requireCode.toUtf8(), QUrl());
+    QObject *obj = component.create(context);
+
+    // Getting compiled version of require function from QML object
+    m_require = m_engine->newQObject(obj).property("__require");
+
+    // Making CommonJS singleton available inside require
+    // function to be able to refer back to it without
+    // relying on CommonJS QML module being imported into
+    // global namespace (without `as SomeIdentifier`)
+    m_require.setProperty("__native", m_scriptEngine->newQObject(this));
 }
