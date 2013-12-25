@@ -29,6 +29,12 @@ public:
         return new CommonJS(engine, scriptEngine);
     }
 
+    // Convenince function for registering CommonJS in QML
+    static void registerQmlSingletonType(const char *uri = "CommonJS")
+    {
+        qmlRegisterSingletonType<CommonJS>(uri, 1, 0, "CommonJS", singletonProvider);
+    }
+
 
 protected:
     void initRequireJSCode();

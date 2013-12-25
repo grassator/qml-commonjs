@@ -6,8 +6,7 @@
 void CommonJSPlugin::registerTypes(const char *uri)
 {
     Q_INIT_RESOURCE(resources);
-    // @uri CommonJS
-    qmlRegisterSingletonType<CommonJS>(uri, 1, 0, "CommonJS", CommonJS::singletonProvider);
+    CommonJS::registerQmlSingletonType(uri);
 }
 
 CommonJSPlugin::~CommonJSPlugin()
