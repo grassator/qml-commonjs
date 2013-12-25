@@ -1,3 +1,3 @@
 module CommonJS
-plugin CommonJS
+plugin plugin
 

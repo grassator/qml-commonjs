@@ -1,5 +1,5 @@
-#ifndef COMMONJS_PLUGIN_H
-#define COMMONJS_PLUGIN_H
+#ifndef PLUGIN_PLUGIN_H
+#define PLUGIN_PLUGIN_H
 
 #include <QQmlExtensionPlugin>
 
@@ -11,7 +11,8 @@ class CommonJSPlugin : public QQmlExtensionPlugin
 public:
     void registerTypes(const char *uri);
     ~CommonJSPlugin();
+
 };
 
-#endif // COMMONJS_PLUGIN_H
+#endif // PLUGIN_PLUGIN_H
 

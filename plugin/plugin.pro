@@ -1,5 +1,5 @@
 TEMPLATE = lib
-TARGET = CommonJS
+TARGET = plugin
 QT += qml quick
 CONFIG += qt plugin
 
@@ -8,15 +8,14 @@ uri = CommonJS
 
 # Input
 SOURCES += \
-    commonjs_plugin.cpp \
-    commonjs.cpp
+    commonjs_plugin.cpp
 
 HEADERS += \
-    commonjs_plugin.h \
-    commonjs.h
+    commonjs_plugin.h
 
-OTHER_FILES = qmldir \
-    templates/require.js
+OTHER_FILES = qmldir
+
+include(../commonjs/commonjs.pri)
 
 !equals(_PRO_FILE_PWD_, $$OUT_PWD) {
     copy_qmldir.target = $$OUT_PWD/qmldir
@@ -33,7 +32,4 @@ unix {
     target.path = $$installPath
     INSTALLS += target qmldir
 }
-
-RESOURCES += \
-    resources.qrc
 
