@@ -23,6 +23,12 @@ public:
     // so that javascript code will have access to them
     Q_INVOKABLE QString __loadFile(QString url);
 
+    // QML singleton provider for usage with qmlRegisterSingletonType<>
+    static QObject* singletonProvider(QQmlEngine *engine, QJSEngine *scriptEngine)
+    {
+        return new CommonJS(engine, scriptEngine);
+    }
+
 
 protected:
     void initRequireJSCode();
