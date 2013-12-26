@@ -32,7 +32,7 @@ public:
     // Convenince function for registering CommonJS in QML
     static void registerQmlSingletonType(const char *uri = "CommonJS")
     {
-        qmlRegisterSingletonType<CommonJS>(uri, 1, 0, "CommonJS", singletonProvider);
+        qmlRegisterSingletonType<CommonJS>(uri, 0, 1, "CommonJS", singletonProvider);
     }
 
 

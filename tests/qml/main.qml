@@ -1,5 +1,5 @@
 import QtQuick 2.0
-import CommonJSTest 1.0
+import CommonJSTest 0.1
 
 QtObject {
 

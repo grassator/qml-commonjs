@@ -10,12 +10,12 @@ Experiment in adding CommonJS support to QML.
 
 When accessing these functions from QML, you have to use `CommonJS.` prefix because Qt doesn't allow defining global functions.
 
+## Roadmap
 
-## Goals
-
-1. Full support for [globals](http://nodejs.org/api/globals.html) and [modules](http://nodejs.org/api/modules.html).
-2. At least partial support for [path](http://nodejs.org/api/path.html), [fs](http://nodejs.org/api/fs.html) and [util](http://nodejs.org/api/util.html)
-3. Test popular real modules to see what is most required and implement based on demand.
+1. Full support for [modules](http://nodejs.org/api/modules.html).
+2. Support [globals](http://nodejs.org/api/globals.html) except for `Buffer` and `process`.
+3. At least partial support for [path](http://nodejs.org/api/path.html), [fs](http://nodejs.org/api/fs.html) and [util](http://nodejs.org/api/util.html).
+4. Test popular real modules to see what is most required and implement based on demand.
 
 ## Not a concern
 
@@ -33,7 +33,7 @@ When accessing these functions from QML, you have to use `CommonJS.` prefix beca
 
 After that you should be able to just import CommonJS as regular QML library and use it in your code:
 
-    import CommonJS 1.0
+    import CommonJS 0.1
     import QtQuick 2.0
     
     Rectangle {
