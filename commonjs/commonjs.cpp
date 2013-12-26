@@ -87,23 +87,20 @@ void CommonJS::initRequireJSCode()
     QQmlContext *context = new QQmlContext(m_engine);
     QQmlComponent component(m_engine);
 
-    // Composing lightest possible QML component
-    // that will host our require function
-    QString requireCode = "import QtQuick 2.0; QtObject { %1 }";
-
-    // defining require function as method to that component
-    requireCode = requireCode.arg(__loadFile(":/templates/require.js"));
+    // Sandboxed version of require funciton is available
+    // inside lightest possible QML component loaded here
+    QString requireCode = __loadFile(":/templates/require.qml");
 
     // Now creating the component to compile our require functions
     component.setData(requireCode.toUtf8(), QUrl());
     QObject *obj = component.create(context);
 
     // Getting compiled version of require function from QML object
-    m_require = m_engine->newQObject(obj).property("__require");
+    m_require = m_engine->newQObject(obj).property("sandbox");
 
     // Making CommonJS singleton available inside require
     // function to be able to refer back to it without
     // relying on CommonJS QML module being imported into
     // global namespace (without `as SomeIdentifier`)
-    m_require.setProperty("__native", m_scriptEngine->newQObject(this));
+    m_require = m_require.call(QJSValueList() << m_scriptEngine->newQObject(this));
 }

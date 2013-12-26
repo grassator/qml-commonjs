@@ -5,7 +5,7 @@ HEADERS += \
     $$PWD/commonjs.h
 
 OTHER_FILES += \
-    $$PWD/templates/require.js
+    $$PWD/templates/require.qml
 
 RESOURCES += \
     $$PWD/resources.qrc
