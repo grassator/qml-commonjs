@@ -38,7 +38,7 @@ public:
 
 protected:
     void initRequireJSCode();
-
+    QStringList m_builtInModules;
     QJSValue m_global;
     QJSValue m_cache;
     QJSValue m_require;

@@ -11,6 +11,10 @@ CommonJS::CommonJS(QQmlEngine *engine, QJSEngine *scriptEngine)
 {
     m_cache = m_scriptEngine->newObject();
     m_global = m_scriptEngine->newObject();
+
+    m_builtInModules
+            << "assert"
+            << "util";
 }
 
 /**
@@ -43,6 +47,11 @@ QString CommonJS::__loadFile(QString url)
  */
 QString CommonJS::resolve(QString url, QString base)
 {
+    // Shortcurcuiting for built-in modules
+    if(m_builtInModules.contains(url)) {
+        return ":/lib/" + url + ".js";
+    }
+
     // removing prefix from file urls if present
     if(url.left(7) == "file://") {
         url = url.mid(7);
@@ -66,14 +75,18 @@ QString CommonJS::resolve(QString url, QString base)
  */
 QJSValue CommonJS::require(QString url)
 {
-    // Getting resolved path relative to calling QML file
-    QString program = QString("Qt.resolvedUrl('%1')").arg(url);
-    url = m_scriptEngine->evaluate(program).toVariant().toUrl().toLocalFile();
+    if(!m_builtInModules.contains(url)) {
+        // Getting resolved path relative to calling QML file
+        QString program = QString("Qt.resolvedUrl('%1')").arg(url);
+        url = m_scriptEngine->evaluate(program).toVariant().toUrl().toLocalFile();
+    }
 
     if(m_require.isUndefined()) {
         initRequireJSCode();
     }
-    return m_require.call(QJSValueList() << url);
+
+    QJSValue result = m_require.call(QJSValueList() << url);
+    return result;
 }
 
 /**

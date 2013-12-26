@@ -1,5 +1,7 @@
 <RCC>
     <qresource prefix="/">
         <file>templates/require.qml</file>
+        <file>lib/assert.js</file>
+        <file>lib/util.js</file>
     </qresource>
 </RCC>

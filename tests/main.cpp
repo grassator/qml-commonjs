@@ -19,7 +19,7 @@ int main(int argc, char *argv[])
     mainQml.create();
 
     // The only way component isn't ready is if something went wrong
-    if(!mainQml.isReady()) {
+    if(!mainQml.isReady() || mainQml.isError()) {
         qDebug() << mainQml.errors();
         return -1;
     }

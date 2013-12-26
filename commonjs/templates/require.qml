@@ -4,14 +4,14 @@ QtObject {
 
     function sandbox(
         // this is a real parameter that is passed from C++
-        __native,
+        __native
         // these parameters are here to disallow access to global objects
         // with these names from inside CommonJS. If it is discovered
         // that some of them _are_ useful inside CommonJS, then a
         // separate CommonJS module, (e.g. "qml") should be defined
         // to provide this functionality.
-        Qt, gc, print, XMLHttpRequest, qsTr, qsTranslate, qsTrId,
-        QT_TR_NOOP, QT_TRANSLATE_NOOP, QT_TRID_NOOP
+        , Qt, gc, print, XMLHttpRequest, qsTr, qsTranslate, qsTrId
+        , QT_TR_NOOP, QT_TRANSLATE_NOOP, QT_TRID_NOOP
     ) {
 
         // Creating a function responsible for requiring modules
