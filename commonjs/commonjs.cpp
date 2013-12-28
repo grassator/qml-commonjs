@@ -1,4 +1,5 @@
 #include "commonjs.h"
+#include "cjsprocess.h"
 #include <QDebug>
 
 /**
@@ -11,6 +12,7 @@ CommonJS::CommonJS(QQmlEngine *engine, QJSEngine *scriptEngine)
 {
     m_cache = m_scriptEngine->newObject();
     m_global = m_scriptEngine->newObject();
+    m_process = m_scriptEngine->newQObject(new CJSProcess(this));
 
     m_builtInModules
             << "assert"

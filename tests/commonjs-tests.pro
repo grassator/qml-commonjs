@@ -71,3 +71,5 @@ include(../commonjs/commonjs.pri)
 OTHER_FILES += \
     js/main.js
 
+HEADERS +=
+

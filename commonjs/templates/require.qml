@@ -32,6 +32,7 @@ QtObject {
             // that require special treatment
             var __dirname = __filename.replace(/\/[^\/]*$/, '');
             var global = __native.global;
+            var process = __native.process;
             var exports = {};
             var module = {
                 id: __filename,

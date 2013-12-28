@@ -1,8 +1,10 @@
 SOURCES += \
-    $$PWD/commonjs.cpp
+    $$PWD/commonjs.cpp \
+    ../commonjs/cjsprocess.cpp
 
 HEADERS += \
-    $$PWD/commonjs.h
+    $$PWD/commonjs.h \
+    ../commonjs/cjsprocess.h
 
 OTHER_FILES += \
     $$PWD/templates/require.qml \

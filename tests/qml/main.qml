@@ -15,8 +15,11 @@ QtObject {
         var assert = CommonJS.require('assert');
 
         try {
-            assert.ok(!main);
+            assert.ok(main);
+            assert.ok('function' === typeof main);
         } catch(e) { }
+
+        console.log('All tests passed');
 
         // Unfortunately calling Qt.quit() in Component.onCompleted
         // doesn't work as expected so use timer instead

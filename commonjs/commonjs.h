@@ -10,6 +10,7 @@ class CommonJS : public QObject
     Q_DISABLE_COPY(CommonJS)
     Q_PROPERTY(QJSValue cache READ cache)
     Q_PROPERTY(QJSValue global READ global)
+    Q_PROPERTY(QJSValue process READ process)
 
 public:
     explicit CommonJS(QQmlEngine *engine, QJSEngine *scriptEngine);
@@ -18,6 +19,7 @@ public:
     Q_INVOKABLE QJSValue require(QString url);
     QJSValue cache() const { return m_cache; }
     QJSValue global() const { return m_global; }
+    QJSValue process() const { return m_process; }
 
     // Pseudo-private function that is only public
     // so that javascript code will have access to them
@@ -38,6 +40,7 @@ public:
 
 protected:
     void initRequireJSCode();
+    QJSValue m_process;
     QStringList m_builtInModules;
     QJSValue m_global;
     QJSValue m_cache;
