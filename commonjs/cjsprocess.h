@@ -27,7 +27,16 @@ public:
      * "This causes node to emit an abort.
      *  This will cause node to exit and generate a core file."
      */
-    Q_INVOKABLE void abort() const { exit(-1); }
+    Q_INVOKABLE void abort() const { exit(1); }
+
+    Q_INVOKABLE void exit(int code = 0) const { qApp->exit(code); }
+
+#ifndef Q_WS_WIN
+    Q_INVOKABLE int getgid() const;
+    Q_INVOKABLE void setgid(int gid) const;
+    Q_INVOKABLE int getuid() const;
+    Q_INVOKABLE void setuid(int uid) const;
+#endif
 
     QVariantMap env();
 
