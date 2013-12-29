@@ -5,6 +5,7 @@
 #include <QCoreApplication>
 #include <QStringList>
 #include <QVariantMap>
+#include <QJSValue>
 
 class CJSProcess : public QObject
 {
@@ -15,13 +16,16 @@ class CJSProcess : public QObject
     Q_PROPERTY(QVariantMap env READ env)
 
 public:
-    explicit CJSProcess(QObject *parent = 0) : QObject(parent) {}
+    explicit CJSProcess(QObject *parent = 0)
+        : QObject(parent), m_tickEventPosted(false) {}
 
     QStringList argv() const { return qApp->arguments(); }
     QString execPath() const { return qApp->applicationFilePath(); }
 
     // Since we don't support node-specific arguments this list is always empty
     QStringList execArgv() const { return QStringList(); }
+
+    QVariantMap env();
 
     /* This may not do what common js modules expect according to nodejs docs:
      * "This causes node to emit an abort.
@@ -38,7 +42,12 @@ public:
     Q_INVOKABLE void setuid(int uid) const;
 #endif
 
-    QVariantMap env();
+    Q_INVOKABLE void nextTick(QJSValue callback);
+
+protected:
+    bool m_tickEventPosted;
+    QList<QJSValue> m_nextTickCallbacks;
+    void customEvent(QEvent *e);
 
 };
 

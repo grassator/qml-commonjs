@@ -19,6 +19,14 @@ QtObject {
             assert.ok('function' === typeof main);
         } catch(e) { }
 
+        var i = 0;
+        CommonJS.process.nextTick(function testTick() {
+            if(i < 5) {
+                CommonJS.process.nextTick(testTick);
+                i++;
+            }
+            console.log('nextTick works');
+        });
         console.log('All tests passed');
 
         // Unfortunately calling Qt.quit() in Component.onCompleted
