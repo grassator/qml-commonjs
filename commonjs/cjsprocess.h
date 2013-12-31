@@ -6,6 +6,7 @@
 #include <QStringList>
 #include <QVariantMap>
 #include <QJSValue>
+#include <QDir>
 
 class CJSProcess : public QObject
 {
@@ -21,6 +22,8 @@ public:
 
     QStringList argv() const { return qApp->arguments(); }
     QString execPath() const { return qApp->applicationFilePath(); }
+    Q_INVOKABLE QString pwd() const { return QDir::currentPath(); }
+    Q_INVOKABLE void chdir(QString path) const { QDir::setCurrent(path); }
 
     // Since we don't support node-specific arguments this list is always empty
     QStringList execArgv() const { return QStringList(); }
