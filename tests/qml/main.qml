@@ -27,7 +27,7 @@ QtObject {
             }
             console.log('nextTick works');
         });
-        console.log('All tests passed');
+        console.log('All tests passed. Version: ' + CommonJS.process.version);
 
         // Unfortunately calling Qt.quit() in Component.onCompleted
         // doesn't work as expected so use timer instead

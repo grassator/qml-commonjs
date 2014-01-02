@@ -1,4 +1,5 @@
 #include "cjsprocess.h"
+#include "commonjs.h"
 
 // Gives access to process ENV
 #include <stdio.h>
@@ -46,7 +47,6 @@ int CJSProcess::getuid() const { return getuid(); }
 void CJSProcess::setuid(int uid) const { setuid(uid); }
 #endif
 
-
 void CJSProcess::nextTick(QJSValue callback = QJSValue())
 {
     if(!callback.isCallable()) {
@@ -67,6 +67,13 @@ void CJSProcess::nextTick(QJSValue callback = QJSValue())
  * @brief Provides access to process ENV
  * @return
  */
+QString CJSProcess::version() const
+{
+    return QString("%1.%2")
+            .arg(CommonJS::majorVersion)
+            .arg(CommonJS::minorVersion);
+}
+
 QVariantMap CJSProcess::env()
 {
     QVariantMap envMap;

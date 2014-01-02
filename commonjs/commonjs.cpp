@@ -19,6 +19,9 @@ CommonJS::CommonJS(QQmlEngine *engine, QJSEngine *scriptEngine)
             << "util";
 }
 
+int CommonJS::minorVersion = 1;
+int CommonJS::majorVersion = 0;
+
 /**
  * @internal
  * @param url
