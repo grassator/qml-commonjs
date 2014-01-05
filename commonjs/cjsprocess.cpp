@@ -74,6 +74,29 @@ QString CJSProcess::version() const
             .arg(CommonJS::minorVersion);
 }
 
+QString CJSProcess::platform() const
+{
+#ifdef Q_OS_WIN32
+    return "win32";
+#endif
+#ifdef Q_OS_FREEBSD
+    return "freebsd";
+#endif
+#ifdef Q_OS_DARWIN
+    return "darwin";
+#endif
+#ifdef Q_OS_DARWIN64
+    return "darwin";
+#endif
+#ifdef Q_OS_LINUX
+    return "linux";
+#endif
+#ifdef Q_OS_SOLARIS
+    return "sunos";
+#endif
+    return "unknown";
+}
+
 QVariantMap CJSProcess::env()
 {
     QVariantMap envMap;

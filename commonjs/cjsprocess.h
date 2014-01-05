@@ -16,6 +16,7 @@ class CJSProcess : public QObject
     Q_PROPERTY(QStringList execArgv READ execArgv)
     Q_PROPERTY(QVariantMap env READ env)
     Q_PROPERTY(QString version READ version)
+    Q_PROPERTY(QString platform READ platform)
 
 public:
     explicit CJSProcess(QObject *parent = 0)
@@ -30,6 +31,7 @@ public:
     QStringList execArgv() const { return QStringList(); }
 
     QString version() const;
+    QString platform() const;
     QVariantMap env();
 
     /* This may not do what common js modules expect according to nodejs docs:
