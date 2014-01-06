@@ -64,13 +64,25 @@ QString CommonJS::resolve(QString url, QString base)
 
     // resolving relative path
     if(url.left(2) == "./" || url.left(3) == "../") {
+        // trying as file
         url = QDir::cleanPath(QFileInfo(base).absolutePath() + "/" + url);
-    } else
+        QFileInfo info(url);
+        if(info.isDir()) {
+            // FIXME Need to read in info here an use it
+            if(QFile::exists(url + "/package.json")) {
+
+            } else {
+                url = url + "/index.js";
+            }
+        }
+    } else {
         // Else if not absolute or qrc path then try more complex resolving
         if(url.at(0) != '/' && url.left(2) != ":/") {
             // FIXME need to implement this
         }
-    return url;
+        return url;
+    }
+    return QString();
 }
 
 /**
