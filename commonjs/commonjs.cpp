@@ -69,8 +69,11 @@ QString CommonJS::resolve(QString url, QString base)
         QFileInfo info(url);
         if(info.isDir()) {
             // FIXME Need to read in info here an use it
-            if(QFile::exists(url + "/package.json")) {
-
+            QString packagePath = url + "/package.json";
+            if(QFile::exists(packagePath)) {
+                QFile jsonFile(packagePath);
+                jsonFile.open(QIODevice::ReadOnly);
+                QJsonDocument package = QJsonDocument::fromBinaryData(jsonFile.readAll());
             } else {
                 url = url + "/index.js";
             }
@@ -80,9 +83,13 @@ QString CommonJS::resolve(QString url, QString base)
         if(url.at(0) != '/' && url.left(2) != ":/") {
             // FIXME need to implement this
         }
-        return url;
     }
-    return QString();
+
+    if(QFile::exists(url)) {
+        return url;
+    } else {
+        return QString();
+    }
 }
 
 /**

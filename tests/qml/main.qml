@@ -7,10 +7,15 @@ QtObject {
         // By default allow test to run for 1 minute before exiting
         interval:  60 * 1000
         running: true
-        onTriggered: Qt.quit()
+        onTriggered: {
+            Qt.quit();
+        }
     }
 
     Component.onCompleted: {
+        console.log('Start Testing. Version: ' + CommonJS.process.version +
+                    ". Platform: " + CommonJS.process.platform);
+
         var main = CommonJS.require('../js/main.js');
         var assert = CommonJS.require('assert');
 
@@ -27,8 +32,14 @@ QtObject {
             }
             console.log('nextTick works');
         });
-        console.log('All tests passed. Version: ' + CommonJS.process.version +
-                    ". Platform: " + CommonJS.process.platform);
+
+//        var threw = false;
+//        try {
+            CommonJS.require('non_existing_module.js');
+//        } catch(e) {
+//           threw = true;
+//        }
+//        assert.equal(threw, true);
 
         // Unfortunately calling Qt.quit() in Component.onCompleted
         // doesn't work as expected so use timer instead
