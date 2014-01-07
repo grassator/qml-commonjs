@@ -66,22 +66,29 @@ QString CommonJS::resolve(QString url, QString base)
     if(url.left(2) == "./" || url.left(3) == "../") {
         // trying as file
         url = QDir::cleanPath(QFileInfo(base).absolutePath() + "/" + url);
-        QFileInfo info(url);
-        if(info.isDir()) {
-            // FIXME Need to read in info here an use it
-            QString packagePath = url + "/package.json";
-            if(QFile::exists(packagePath)) {
-                QFile jsonFile(packagePath);
-                jsonFile.open(QIODevice::ReadOnly);
-                QJsonDocument package = QJsonDocument::fromBinaryData(jsonFile.readAll());
-            } else {
-                url = url + "/index.js";
-            }
-        }
     } else {
         // Else if not absolute or qrc path then try more complex resolving
         if(url.at(0) != '/' && url.left(2) != ":/") {
             // FIXME need to implement this
+        }
+    }
+
+    // module as folder
+    QFileInfo info(url);
+    if(info.isDir()) {
+        QString packagePath = url + "/package.json";
+        if(QFile::exists(packagePath)) {
+            QFile jsonFile(packagePath);
+            if(jsonFile.open(QIODevice::ReadOnly | QIODevice::Text)) {
+                QTextStream stream(&jsonFile);
+                QJsonDocument package = QJsonDocument::fromJson(stream.readAll().toUtf8());
+                if(package.isObject() && package.object().contains("main")) {
+                    url = url + "/" + package.object().value("main").toString();
+                }
+                jsonFile.close();
+            }
+        } else {
+            url = url + "/index.js";
         }
     }
 

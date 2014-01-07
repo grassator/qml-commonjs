@@ -22,6 +22,8 @@ QtObject {
         try {
             assert.ok(main);
             assert.ok('function' === typeof main);
+            assert.equal("works", CommonJS.require('../js/no-package-json'));
+            assert.equal("works", CommonJS.require('../js/package-json'));
         } catch(e) { }
 
         var i = 0;
@@ -33,13 +35,6 @@ QtObject {
             console.log('nextTick works');
         });
 
-//        var threw = false;
-//        try {
-            CommonJS.require('non_existing_module.js');
-//        } catch(e) {
-//           threw = true;
-//        }
-//        assert.equal(threw, true);
 
         // Unfortunately calling Qt.quit() in Component.onCompleted
         // doesn't work as expected so use timer instead
