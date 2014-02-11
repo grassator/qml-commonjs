@@ -6,7 +6,7 @@
 extern char **environ;
 
 // Necessary for function related to gid / uid
-#ifndef Q_WS_WIN
+#ifndef Q_OS_WIN
 #include <sys/types.h>
 #include <unistd.h>
 #endif
@@ -40,7 +40,7 @@ QEvent::Type CJSTickEvent::customEventType = QEvent::None;
 ///////////////////////////////////////////////////////////////////////////////
 
 // POSIX-specific methods
-#ifndef Q_WS_WIN
+#ifndef Q_OS_WIN
 int CJSProcess::getgid() const { return getgid();}
 void CJSProcess::setgid(int gid) const { setgid(gid); }
 int CJSProcess::getuid() const { return getuid(); }
@@ -76,7 +76,7 @@ QString CJSProcess::version() const
 
 QString CJSProcess::platform() const
 {
-#ifdef Q_OS_WIN32
+#ifdef Q_OS_WIN
     return "win32";
 #endif
 #ifdef Q_OS_FREEBSD
