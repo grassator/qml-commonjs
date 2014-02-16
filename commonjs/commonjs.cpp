@@ -44,6 +44,43 @@ QString CommonJS::__loadFile(QString url)
 }
 
 /**
+ * @brief Calls a JS function after a specified delay.
+ * @param callback JS function
+ * @param delay
+ * @return
+ */
+int CommonJS::setTimeout(QJSValue callback, int delay)
+{
+    if(delay < 0) {
+        delay = 0;
+    }
+
+    int timerId = startTimer(delay, Qt::PreciseTimer);
+    m_setTimeoutCallbacks.insert(timerId, callback);
+
+    return timerId;
+}
+
+void CommonJS::timerEvent(QTimerEvent *event) {
+    QJSValue callback;
+    if(m_setTimeoutCallbacks.contains(event->timerId())) {
+        callback = m_setTimeoutCallbacks[event->timerId()];
+        m_setTimeoutCallbacks.remove(event->timerId());
+        killTimer(event->timerId());
+        event->accept();
+    }
+    // setInterval will go here
+
+    if(!callback.isUndefined()) {
+        if(callback.isCallable()) {
+            callback.call();
+        } else { // if isn't a function callback is treated as snippet of code
+            m_scriptEngine->evaluate(callback.toString());
+        }
+    }
+}
+
+/**
  * @brief Provides resolved url based on node.js rules
  * but optionally takes base parameter.
  * @param url

@@ -25,6 +25,8 @@ public:
     // so that javascript code will have access to them
     Q_INVOKABLE QString __loadFile(QString url);
 
+    Q_INVOKABLE int setTimeout(QJSValue callback = QJSValue(), int delay = 0);
+
     // QML singleton provider for usage with qmlRegisterSingletonType<>
     static QObject* singletonProvider(QQmlEngine *engine, QJSEngine *scriptEngine)
     {
@@ -43,6 +45,7 @@ public:
 
 protected:
     void initRequireJSCode();
+    QHash<int, QJSValue> m_setTimeoutCallbacks;
     QJSValue m_process;
     QStringList m_builtInModules;
     QJSValue m_global;
@@ -50,6 +53,9 @@ protected:
     QJSValue m_require;
     QQmlEngine *m_engine;
     QJSEngine *m_scriptEngine;
+
+    // overloaded methods
+    void timerEvent(QTimerEvent *event);
 };
 
 #endif // COMMONJS_H
