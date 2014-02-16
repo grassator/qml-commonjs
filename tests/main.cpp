@@ -7,7 +7,7 @@
 int main(int argc, char *argv[])
 {
     QCoreApplication app(argc, argv);
-    CommonJS::registerQmlSingletonType("CommonJSTest");
+    CommonJS::registerQmlSingletonType();
 
     QQmlEngine *engine = new QQmlEngine;
     engine->setBaseUrl(QUrl::fromLocalFile(qApp->applicationDirPath()));
