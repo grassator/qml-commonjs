@@ -61,6 +61,24 @@ int CommonJS::setTimeout(QJSValue callback, int delay)
     return timerId;
 }
 
+/**
+ * @brief Clears delayed function or code snippet set by setTimeout
+ * @param timeoutId
+ * @return
+ */
+void CommonJS::clearTimeout(int timeoutId)
+{
+    if(m_setTimeoutCallbacks.contains(timeoutId)) {
+        m_setTimeoutCallbacks.remove(timeoutId);
+        killTimer(timeoutId);
+    }
+}
+
+/**
+ * @brief Used for implementation of setTimeout / setInterval
+ * @param event
+ * @internal
+ */
 void CommonJS::timerEvent(QTimerEvent *event) {
     QJSValue callback;
     if(m_setTimeoutCallbacks.contains(event->timerId())) {

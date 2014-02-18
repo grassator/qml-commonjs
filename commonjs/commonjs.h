@@ -26,6 +26,7 @@ public:
     Q_INVOKABLE QString __loadFile(QString url);
 
     Q_INVOKABLE int setTimeout(QJSValue callback = QJSValue(), int delay = 0);
+    Q_INVOKABLE void clearTimeout(int timeoutId = 0);
 
     // QML singleton provider for usage with qmlRegisterSingletonType<>
     static QObject* singletonProvider(QQmlEngine *engine, QJSEngine *scriptEngine)
