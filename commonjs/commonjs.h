@@ -27,6 +27,8 @@ public:
 
     Q_INVOKABLE int setTimeout(QJSValue callback = QJSValue(), int delay = 0);
     Q_INVOKABLE void clearTimeout(int timeoutId = 0);
+    Q_INVOKABLE int setInterval(QJSValue callback = QJSValue(), int interval = 0);
+    Q_INVOKABLE void clearInterval(int intervalId = 0);
 
     // QML singleton provider for usage with qmlRegisterSingletonType<>
     static QObject* singletonProvider(QQmlEngine *engine, QJSEngine *scriptEngine)
@@ -47,6 +49,7 @@ public:
 protected:
     void initRequireJSCode();
     QHash<int, QJSValue> m_setTimeoutCallbacks;
+    QHash<int, QJSValue> m_setIntervalCallbacks;
     QJSValue m_process;
     QStringList m_builtInModules;
     QJSValue m_global;

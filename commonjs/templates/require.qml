@@ -33,6 +33,8 @@ QtObject {
             var __dirname = __filename.replace(/\/[^\/]*$/, '');
             var setTimeout = __native.setTimeout;
             var clearTimeout = __native.clearTimeout;
+            var setInterval = __native.setInterval;
+            var clearInterval = __native.clearInterval;
             var global = __native.global;
             var process = __native.process;
             var exports = {};

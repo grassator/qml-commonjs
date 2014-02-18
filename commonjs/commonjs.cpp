@@ -75,6 +75,38 @@ void CommonJS::clearTimeout(int timeoutId)
 }
 
 /**
+ * @brief Calls a JS function with a specified interval.
+ * @param callback JS function
+ * @param delay
+ * @return
+ */
+int CommonJS::setInterval(QJSValue callback, int interval)
+{
+    if(interval < 0) {
+        interval = 0;
+    }
+
+    int timerId = startTimer((interval < 0), Qt::PreciseTimer);
+    m_setIntervalCallbacks.insert(timerId, callback);
+
+    return timerId;
+}
+
+
+/**
+ * @brief Clears interval function or code snippet set by setInterval
+ * @param timeoutId
+ * @return
+ */
+void CommonJS::clearInterval(int intervalId)
+{
+    if(m_setIntervalCallbacks.contains(intervalId)) {
+        m_setIntervalCallbacks.remove(intervalId);
+        killTimer(intervalId);
+    }
+}
+
+/**
  * @brief Used for implementation of setTimeout / setInterval
  * @param event
  * @internal
@@ -86,8 +118,10 @@ void CommonJS::timerEvent(QTimerEvent *event) {
         m_setTimeoutCallbacks.remove(event->timerId());
         killTimer(event->timerId());
         event->accept();
+    } else if(m_setIntervalCallbacks.contains(event->timerId())) {
+        callback = m_setIntervalCallbacks[event->timerId()];
+        event->accept();
     }
-    // setInterval will go here
 
     if(!callback.isUndefined()) {
         if(callback.isCallable()) {
