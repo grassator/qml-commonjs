@@ -73,12 +73,22 @@ QtObject {
             // Cleaning namespace before code evaluation
             parentModule = undefined;
 
-            // Evaluating require'd code. It would be better
-            // to use QJSEngine::evaluate but unfortunately
-            // it doesn't support nested calls
-            //
-            // @disable-check M23
-            eval(__native.__loadFile(__filename));
+            try {
+                // Evaluating require'd code. It would be better
+                // to use QJSEngine::evaluate but unfortunately
+                // it doesn't support nested calls
+                //
+                // @disable-check M23
+                eval(__native.__loadFile(__filename));
+            } catch(e) {
+                if(!e.reported) {
+                    e.reported = true;
+                    console.error(e);
+                }
+                // lineNumber is wrong with eval :(
+                console.error('  ' + __filename /* + ':' + e.lineNumber */);
+                throw e;
+            }
 
             // Marking module as loaded
             module.loaded = true;
