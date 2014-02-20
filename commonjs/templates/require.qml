@@ -74,19 +74,21 @@ QtObject {
             parentModule = undefined;
 
             try {
-                // Evaluating require'd code. It would be better
-                // to use QJSEngine::evaluate but unfortunately
-                // it doesn't support nested calls
-                //
-                // @disable-check M23
-                eval(__native.__loadFile(__filename));
+                // Evaluating require'd code. Not using QJSEngine::evaluate
+                // to allow exceptions when requiring modules to naturally
+                // bubble up whereas QJSEngine::evaluate would simply return
+                // the error instead of bubbling it calling code because
+                // of necessary C++ calls
+                // @disable-check M23 // allowing eval
+                eval("try{" +
+                     __native.__loadFile(__filename) +
+                     // there is probably a bug that will not propagate exception
+                     // thrown inside eval() unless it's an instance of Error
+                     "}catch(e){ throw e instanceof Error ? e : new Error(e); }"
+                     );
             } catch(e) {
-                if(!e.reported) {
-                    e.reported = true;
-                    console.error(e);
-                }
-                // lineNumber is wrong with eval :(
-                console.error('  ' + __filename /* + ':' + e.lineNumber */);
+                // Capturing stack trace. Unfortunately lineNumber is wrong with eval
+                e.message += '\n  ' + __filename /* + ':' + e.lineNumber */;
                 throw e;
             }
 

@@ -206,6 +206,9 @@ QJSValue CommonJS::require(QString url)
     }
 
     QJSValue result = m_require.call(QJSValueList() << url);
+    if(result.isError()) {
+        m_scriptEngine->evaluate("console.error").call(QJSValueList() << result);
+    }
     return result;
 }
 
