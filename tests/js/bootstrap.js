@@ -8,8 +8,10 @@ try {
 }
 
 var assert = require('assert');
+var path = require('path');
 
 try {
+    assert.ok(path);
     assert.equal("works", require('./no-package-json'));
     assert.equal("works", require('./package-json'));
 } catch(e) { }

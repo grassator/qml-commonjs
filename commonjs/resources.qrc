@@ -3,5 +3,6 @@
         <file>templates/require.qml</file>
         <file>lib/assert.js</file>
         <file>lib/util.js</file>
+        <file>lib/path.js</file>
     </qresource>
 </RCC>
