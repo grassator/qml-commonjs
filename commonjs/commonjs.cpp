@@ -17,7 +17,8 @@ CommonJS::CommonJS(QQmlEngine *engine, QJSEngine *scriptEngine)
     m_builtInModules
             << "assert"
             << "util"
-            << "path";
+            << "path"
+            << "querystring";
 }
 
 int CommonJS::minorVersion = 1;

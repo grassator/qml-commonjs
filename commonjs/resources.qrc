@@ -4,5 +4,6 @@
         <file>lib/assert.js</file>
         <file>lib/util.js</file>
         <file>lib/path.js</file>
+        <file>lib/querystring.js</file>
     </qresource>
 </RCC>
