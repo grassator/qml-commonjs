@@ -16,6 +16,7 @@ CommonJS::CommonJS(QQmlEngine *engine, QJSEngine *scriptEngine)
 
     m_builtInModules
             << "assert"
+            << "events"
             << "util"
             << "path"
             << "querystring";

@@ -5,5 +5,6 @@
         <file>lib/util.js</file>
         <file>lib/path.js</file>
         <file>lib/querystring.js</file>
+        <file>lib/events.js</file>
     </qresource>
 </RCC>
