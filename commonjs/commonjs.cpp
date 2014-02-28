@@ -19,6 +19,7 @@ CommonJS::CommonJS(QQmlEngine *engine, QJSEngine *scriptEngine)
             << "events"
             << "util"
             << "path"
+            << "punycode"
             << "querystring";
 }
 
