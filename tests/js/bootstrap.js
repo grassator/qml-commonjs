@@ -10,7 +10,8 @@ try {
 var assert = require('assert');
 
 try {
-    ['path', 'querystring', 'events', 'punycode', 'url'].forEach(function(module){
+    ['path', 'querystring', 'events',
+     'punycode', 'url', 'freelist'].forEach(function(module){
        assert.ok(require(module));
     });
     assert.equal("works", require('./no-package-json'));

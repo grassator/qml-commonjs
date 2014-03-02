@@ -8,5 +8,6 @@
         <file>lib/events.js</file>
         <file>lib/punycode.js</file>
         <file>lib/url.js</file>
+        <file>lib/freelist.js</file>
     </qresource>
 </RCC>
