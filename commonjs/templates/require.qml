@@ -13,6 +13,11 @@ QtObject {
         , Qt, gc, print, XMLHttpRequest, qsTr, qsTranslate, qsTrId
         , QT_TR_NOOP, QT_TRANSLATE_NOOP, QT_TRID_NOOP
     ) {
+        ['setTimeout', 'clearTimeout',
+         'setInterval', 'clearInterval',
+         'process'].forEach(function(key){
+            __native.global[key] = __native[key];
+        });
 
         // Creating a function responsible for requiring modules
         var __require = function(__filename, parentModule) {
@@ -31,12 +36,20 @@ QtObject {
             // except for 'require', 'process' and Buffer
             // that require special treatment
             var __dirname = __filename.replace(/\/[^\/]*$/, '');
-            var setTimeout = __native.setTimeout;
-            var clearTimeout = __native.clearTimeout;
-            var setInterval = __native.setInterval;
-            var clearInterval = __native.clearInterval;
             var global = __native.global;
-            var process = __native.process;
+
+            // creating a snippet of code that would expose registered
+            // globals as local variables
+            //
+            // FIXME need to think of a way to mirror changes to local
+            // vars into global and vice versa
+            var globalToLocalProgram = "";
+            Object.keys(global).forEach(function(key){
+                globalToLocalProgram += "var " + key + " = global." + key + ";";
+            });
+            // @disable-check M23 // allowing eval
+            eval(globalToLocalProgram);
+
             var exports = {};
             var module = {
                 id: __filename,
