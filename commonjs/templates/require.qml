@@ -19,8 +19,11 @@ QtObject {
             __native.global[key] = __native[key];
         });
 
+        var moduleSpecificLocals = ['__filename', '__dirname',
+                                    'module', 'exports'];
+
         // Creating a function responsible for requiring modules
-        var __require = function(__filename, parentModule) {
+        var __require = function(moduleSpecificLocals, __filename, parentModule) {
 
             // Making sure we have fully resolved path
             // because it's later use in cache lookup
@@ -37,18 +40,6 @@ QtObject {
             // that require special treatment
             var __dirname = __filename.replace(/\/[^\/]*$/, '');
             var global = __native.global;
-
-            // creating a snippet of code that would expose registered
-            // globals as local variables
-            //
-            // FIXME need to think of a way to mirror changes to local
-            // vars into global and vice versa
-            var globalToLocalProgram = "";
-            Object.keys(global).forEach(function(key){
-                globalToLocalProgram += "var " + key + " = global." + key + ";";
-            });
-            // @disable-check M23 // allowing eval
-            eval(globalToLocalProgram);
 
             var exports = {};
             var module = {
@@ -79,12 +70,34 @@ QtObject {
             // http://nodejs.org/api/modules.html#modules_module_require_id
             module.require = require;
 
-            // Adding to cache right away to
-            // deal with cyclic dependencies
+            // Adding to cache right away to deal with cyclic dependencies
             require.cache[__filename] = module;
+
+            // creating a snippet of code that would expose registered
+            // globals as local variables
+            //
+            // FIXME need to think of a way to mirror changes to local
+            // vars into global and vice versa
+            var globalFixSnippet = "";
+            Object.keys(global).forEach(function(key){
+                if(moduleSpecificLocals.indexOf(key) === -1) {
+                    globalFixSnippet += "var " + key + " = global." + key + ";";
+                }
+            });
+
+            // now in the same manner exposing module-specific
+            // local vars as global object properties
+            moduleSpecificLocals.forEach(function(key){
+                globalFixSnippet += "global." + key + " = " + key +";";
+            });
+
+            // Applying fixes
+            // @disable-check M23 // allowing eval
+            eval(globalFixSnippet);
 
             // Cleaning namespace before code evaluation
             parentModule = undefined;
+            moduleSpecificLocals = undefined;
 
             try {
                 // Evaluating require'd code. Not using QJSEngine::evaluate
@@ -114,7 +127,7 @@ QtObject {
 
         // Making sure __require is always executed in CommonJS
         // global context and not in QML global JS context
-        __require = __require.bind(__native.global);
+        __require = __require.bind(__native.global, moduleSpecificLocals);
 
         return __require;
     }
