@@ -138,6 +138,32 @@ void CommonJS::timerEvent(QTimerEvent *event) {
     }
 }
 
+QString CommonJS::tryModuleUrlAsDirectory(QString &url)
+{
+    // module as folder
+    QFileInfo info(url);
+    if(!info.isDir()) {
+        return url;
+    }
+
+    QString packagePath = url + "/package.json";
+    if(QFile::exists(packagePath)) {
+        QFile jsonFile(packagePath);
+        if(jsonFile.open(QIODevice::ReadOnly | QIODevice::Text)) {
+            QTextStream stream(&jsonFile);
+            QJsonDocument package = QJsonDocument::fromJson(stream.readAll().toUtf8());
+            if(package.isObject() && package.object().contains("main")) {
+                url = url + "/" + package.object().value("main").toString();
+            }
+            jsonFile.close();
+        }
+    } else {
+        url = url + "/index.js";
+    }
+
+    return url;
+}
+
 /**
  * @brief Provides resolved url based on node.js rules
  * but optionally takes base parameter.
@@ -168,26 +194,10 @@ QString CommonJS::resolve(QString url, QString base)
         }
     }
 
-    // module as folder
-    QFileInfo info(url);
-    if(info.isDir()) {
-        QString packagePath = url + "/package.json";
-        if(QFile::exists(packagePath)) {
-            QFile jsonFile(packagePath);
-            if(jsonFile.open(QIODevice::ReadOnly | QIODevice::Text)) {
-                QTextStream stream(&jsonFile);
-                QJsonDocument package = QJsonDocument::fromJson(stream.readAll().toUtf8());
-                if(package.isObject() && package.object().contains("main")) {
-                    url = url + "/" + package.object().value("main").toString();
-                }
-                jsonFile.close();
-            }
-        } else {
-            url = url + "/index.js";
-        }
-    }
+    url = tryModuleUrlAsDirectory(url);
 
-    if(QFile::exists(url)) {
+    QFileInfo info(url);
+    if(info.isReadable() && info.isFile() && info.suffix() == "js") {
         return url;
     } else {
         return QString();

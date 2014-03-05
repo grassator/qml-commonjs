@@ -47,6 +47,7 @@ public:
     static int minorVersion;
 
 protected:
+    QString tryModuleUrlAsDirectory(QString &url);
     void initRequireJSCode();
     QHash<int, QJSValue> m_setTimeoutCallbacks;
     QHash<int, QJSValue> m_setIntervalCallbacks;
@@ -60,6 +61,7 @@ protected:
 
     // overloaded methods
     void timerEvent(QTimerEvent *event);
+
 };
 
 #endif // COMMONJS_H
