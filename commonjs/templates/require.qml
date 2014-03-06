@@ -30,6 +30,10 @@ QtObject {
             __filename = __native.resolve(
                         __filename, parentModule ? parentModule.id : null);
 
+            if(__filename instanceof Error) {
+                throw __filename;
+            }
+
             // first checking cache
             if(__native.cache[__filename]) {
                 return __native.cache[__filename].exports;

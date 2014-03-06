@@ -171,8 +171,10 @@ QString CommonJS::tryModuleUrlAsDirectory(QString &url)
  * @param base
  * @return
  */
-QString CommonJS::resolve(QString url, QString base)
+QJSValue CommonJS::resolve(QString url, QString base)
 {
+    QString originalUrl = url;
+
     // Shortcurcuiting for built-in modules
     if(m_builtInModules.contains(url)) {
         return ":/lib/" + url + ".js";
@@ -200,7 +202,8 @@ QString CommonJS::resolve(QString url, QString base)
     if(info.isReadable() && info.isFile() && info.suffix() == "js") {
         return url;
     } else {
-        return QString();
+        QString error("new Error('Cannot find module \\'%1\\'')");
+        return m_scriptEngine->evaluate(error.arg(originalUrl));
     }
 }
 

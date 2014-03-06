@@ -15,7 +15,7 @@ class CommonJS : public QObject
 public:
     explicit CommonJS(QQmlEngine *engine, QJSEngine *scriptEngine);
 
-    Q_INVOKABLE QString resolve(QString url, QString base = "");
+    Q_INVOKABLE QJSValue resolve(QString url, QString base = "");
     Q_INVOKABLE QJSValue require(QString url);
     QJSValue cache() const { return m_cache; }
     QJSValue global() const { return m_global; }
