@@ -30,6 +30,7 @@ QtObject {
             __filename = __native.resolve(
                         __filename, parentModule ? parentModule.id : null);
 
+            // if filename couldn't be resolved
             if(__filename instanceof Error) {
                 throw __filename;
             }
@@ -68,7 +69,13 @@ QtObject {
             // Providing require globals described here:
             // http://nodejs.org/api/globals.html#globals_require
             require.cache = __native.cache;
-            require.resolve = __native.resolve;
+            require.resolve = function(url, parent){
+                var result = __native.resolve.call(this, arguments);
+                if(result instanceof Error) {
+                    throw result;
+                }
+                return result;
+            };
 
             // Making new require available in module object
             // http://nodejs.org/api/modules.html#modules_module_require_id
