@@ -1,0 +1,4 @@
+{
+    "name": "with-package-json",
+    "main": "custom-main-file.js"
+}

@@ -70,7 +70,7 @@ QtObject {
             // http://nodejs.org/api/globals.html#globals_require
             require.cache = __native.cache;
             require.resolve = function(url, parent){
-                var result = __native.resolve.call(this, arguments);
+                var result = __native.resolve.apply(this, arguments);
                 if(result instanceof Error) {
                     throw result;
                 }

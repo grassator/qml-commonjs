@@ -175,6 +175,14 @@ QJSValue CommonJS::resolve(QString url, QString base)
 {
     QString originalUrl = url;
 
+    // Making sure that our base path is a directory
+    if(!base.isEmpty()) {
+        QFileInfo baseDirInfo(base);
+        if(baseDirInfo.suffix() == "js") {
+            base = baseDirInfo.dir().absolutePath();
+        }
+    }
+
     // Shortcurcuiting for built-in modules
     if(m_builtInModules.contains(url)) {
         return ":/lib/" + url + ".js";
@@ -188,15 +196,21 @@ QJSValue CommonJS::resolve(QString url, QString base)
     // resolving relative path
     if(url.left(2) == "./" || url.left(3) == "../") {
         // trying as file
-        url = QDir::cleanPath(QFileInfo(base).absolutePath() + "/" + url);
+        url = QDir::cleanPath(base + "/" + url);
+        url = tryModuleUrlAsDirectory(url);
     } else {
-        // Else if not absolute or qrc path then try more complex resolving
+        // Else if not absolute or qrc path then try recursive
+        // resolving of node_modules folders
         if(url.at(0) != '/' && url.left(2) != ":/") {
-            // FIXME need to implement this
+            if(base.isEmpty()) {
+                base = QFileInfo(url).dir().absolutePath();
+            }
+            QString tempUrl = base + "/node_modules/" + url;
+            url = tryModuleUrlAsDirectory(tempUrl);
+        } else {
+            url = tryModuleUrlAsDirectory(url);
         }
     }
-
-    url = tryModuleUrlAsDirectory(url);
 
     QFileInfo info(url);
     if(info.isReadable() && info.isFile() && info.suffix() == "js") {
