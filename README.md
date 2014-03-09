@@ -4,16 +4,16 @@ Experiment in adding CommonJS support to QML.
 
 * Basic `require('./somefile.js')` statement for requiring files by relative path + `require.resolve` + `require.cache`
 * `assert` module
-* most of `util` module
+* `setTimeout` / `clearTimeout` / `setInterval` / `clearInterval`
+* experimental support for `util`, `events`, `path`, `url` and `querystring` modules.
 
-When accessing these functions from QML, you have to use `CommonJS.` prefix because Qt doesn't allow defining global functions.
+When accessing top-level functions (like `setTimeout`) from QML, you have to use `CommonJS.` prefix because Qt doesn't allow defining global functions.
 
-## Roadmap
+## Primary goals
 
-1. Full support for [modules](http://nodejs.org/api/modules.html).
-2. Support [globals](http://nodejs.org/api/globals.html) except for `Buffer` and `process`.
-3. At least partial support for [path](http://nodejs.org/api/path.html), [fs](http://nodejs.org/api/fs.html) and [util](http://nodejs.org/api/util.html).
-4. Test popular real modules to see what is most required and implement based on demand.
+1. Full support for [modules](http://nodejs.org/api/modules.html). *This is almost done with only recursive `node_modules` folder search remaining*.
+2. At least partial support for [path](http://nodejs.org/api/path.html), [fs](http://nodejs.org/api/fs.html) and [util](http://nodejs.org/api/util.html).
+3. Test popular real modules to see what is most required and implement based on demand.
 
 ## Not a concern
 
@@ -36,6 +36,8 @@ After that you should be able to just import CommonJS as regular QML library and
     
     Rectangle {
         Component.onCompleted: {
-            var example = CommonJS.require('./example.js');
+            CommonJS.setTimeout(function(){
+                var example = CommonJS.require('./example.js');
+            });
         }
     }
