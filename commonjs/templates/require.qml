@@ -19,6 +19,9 @@ QtObject {
             __native.global[key] = __native[key];
         });
 
+        // FIXME needs actual implementation
+        function Buffer(){}
+
         var moduleSpecificLocals = ['__filename', '__dirname',
                                     'module', 'exports'];
 
@@ -143,10 +146,44 @@ QtObject {
         return __require;
     }
 
+    function createFsStatsConstructor() {
+        function Stats() {}
+
+        Stats.prototype = {
+            dev: 0,
+            mode: 0,
+            nlink: 0,
+            uid: 0,
+            gid: 0,
+            rdev: 0,
+            blksize: 0,
+            ino: 0,
+            size: 0,
+            blocks: 0,
+            atime: 0,
+            mtime: 0,
+            ctime: 0
+        };
+
+        return Stats;
+    }
+
     function resolveInitializer(__native) {
 
-        var builtInModules = ["assert", "events", "freelist", "url",
-                              "util", "path", "punycode", "querystring"];
+        var builtInModules = ["_degugger", "_http_agent", "http_client",
+                              "_http_common", "_http_incoming", "_http_outgoing",
+                              "_http_server", "_linklist", "_stream_duplex",
+                              "_stream_passthrough", "_stream_readable",
+                              "_stream_transform", "_stream_writable",
+                              "_tls_legacy", "_tls_wrap",
+                              "assert", "buffer", "child_process", "cluster",
+                              "console", "constants", "crypto", "dgram", "dns",
+                              "domain", "events", "freelist", "fs", "http",
+                              "https", "module", "net", "os", "path",
+                              "punycode", "querystring", "readline", "repl",
+                              "smalloc", "stream", "string_decoder",
+                              "sys", "timers", "tls", "tty", "url", "util",
+                              "vm", "zlib"];
 
         // Creating a function responsible for requiring modules
         var __resolve = function(module, basePath) {
@@ -161,6 +198,7 @@ QtObject {
             }
 
             var path = __native.require('path');
+            var fs = __native.require('fs');
 
             // removing prefix from file urls if present
             if(module.slice(0, 7) === "file://") {
@@ -178,7 +216,11 @@ QtObject {
 
                 }
             }
-            console.log(module);
+
+            if(!fs.existsSync(module)) {
+                return "";
+            }
+
             return module;
         };
 

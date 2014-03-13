@@ -4,6 +4,8 @@
 #include <QObject>
 #include <QtQml>
 
+class CJSFile;
+
 class CommonJS : public QObject
 {
     Q_OBJECT
@@ -31,6 +33,7 @@ public:
     Q_INVOKABLE void clearTimeout(int timeoutId = 0);
     Q_INVOKABLE int setInterval(QJSValue callback = QJSValue(), int interval = 0);
     Q_INVOKABLE void clearInterval(int intervalId = 0);
+    QJSValue binding(QString name) const;
 
     // QML singleton provider for usage with qmlRegisterSingletonType<>
     static QObject* singletonProvider(QQmlEngine *engine, QJSEngine *scriptEngine)
@@ -48,14 +51,17 @@ public:
     static int majorVersion;
     static int minorVersion;
 
+    QJSEngine *scriptEngine() const { return m_scriptEngine; }
+
 protected:
     QString tryModuleUrlAsDirectory(QString &url);
     void initRequireJSCode();
     QHash<int, QJSValue> m_setTimeoutCallbacks;
     QHash<int, QJSValue> m_setIntervalCallbacks;
-    QJSValue m_process, m_global, m_cache, m_require, m_resolve;
+    QJSValue m_process, m_global, m_cache, m_require, m_resolve, m_fsStats;
     QQmlEngine *m_engine;
     QJSEngine *m_scriptEngine;
+    CJSFile *m_cjsFile;
 
     // overloaded methods
     void timerEvent(QTimerEvent *event);

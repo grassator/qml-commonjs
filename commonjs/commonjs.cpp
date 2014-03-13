@@ -1,5 +1,6 @@
 #include "commonjs.h"
 #include "cjsprocess.h"
+#include "cjsfile.h"
 #include <QDebug>
 
 /**
@@ -13,6 +14,7 @@ CommonJS::CommonJS(QQmlEngine *engine, QJSEngine *scriptEngine)
     m_cache = m_scriptEngine->newObject();
     m_global = m_scriptEngine->newObject();
     m_process = m_scriptEngine->newQObject(new CJSProcess(this));
+    m_cjsFile = new CJSFile(this);
     initRequireJSCode();
 }
 
@@ -127,6 +129,32 @@ void CommonJS::timerEvent(QTimerEvent *event) {
             m_scriptEngine->evaluate(callback.toString());
         }
     }
+}
+
+QJSValue CommonJS::binding(QString name) const
+{
+    QJSValue result = m_scriptEngine->newObject();
+    if(name == "fs") {
+        result = m_scriptEngine->newQObject(m_cjsFile);
+        result.setProperty("stat", m_scriptEngine->evaluate("(function(){ throw new Error; })"));
+    } else if(name == "constants") {
+        // TODO need to do this properly and probably platform-dependent
+        result.setProperty("S_IFMT", 0b11110000000000);
+        result.setProperty("O_APPEND", 0b1000);
+        result.setProperty("O_CREAT", 0b1000000000);
+        result.setProperty("O_DIRECTORY", 0b100000000000000000000);
+        result.setProperty("O_EXCL", 0b100000000000);
+        result.setProperty("O_NOCTTY", 0b100000000000000000);
+        result.setProperty("O_NOFOLLOW", 0b100000000);
+        result.setProperty("O_RDONLY", 0b0);
+        result.setProperty("O_RDWR", 0b10);
+        result.setProperty("O_SYMLINK", 0b1000000000000000000000);
+        result.setProperty("O_SYNC", 0b10000000);
+        result.setProperty("O_TRUNC", 0b10000000000);
+        result.setProperty("O_WRONLY", 0b1);
+    }
+
+    return result;
 }
 
 QString CommonJS::tryModuleUrlAsDirectory(QString &url)
@@ -262,4 +290,5 @@ void CommonJS::initRequireJSCode()
     // being imported into global namespace (without `as SomeIdentifier`)
     m_require = m_require.call(QJSValueList() << m_scriptEngine->newQObject(this));
     m_resolve = m_resolve.call(QJSValueList() << m_scriptEngine->newQObject(this));
+    m_cjsFile->setStatsConstuctor(jsObj.property("createFsStatsConstructor").call());
 }
