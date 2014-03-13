@@ -11,12 +11,14 @@ class CommonJS : public QObject
     Q_PROPERTY(QJSValue cache READ cache)
     Q_PROPERTY(QJSValue global READ global)
     Q_PROPERTY(QJSValue process READ process)
+    Q_PROPERTY(QJSValue resolve READ resolve)
 
 public:
     explicit CommonJS(QQmlEngine *engine, QJSEngine *scriptEngine);
 
-    Q_INVOKABLE QJSValue resolve(QString url, QString base = "");
+
     Q_INVOKABLE QJSValue require(QString url);
+    QJSValue resolve() const { return m_resolve; }
     QJSValue cache() const { return m_cache; }
     QJSValue global() const { return m_global; }
     QJSValue process() const { return m_process; }
@@ -51,11 +53,7 @@ protected:
     void initRequireJSCode();
     QHash<int, QJSValue> m_setTimeoutCallbacks;
     QHash<int, QJSValue> m_setIntervalCallbacks;
-    QJSValue m_process;
-    QStringList m_builtInModules;
-    QJSValue m_global;
-    QJSValue m_cache;
-    QJSValue m_require;
+    QJSValue m_process, m_global, m_cache, m_require, m_resolve;
     QQmlEngine *m_engine;
     QJSEngine *m_scriptEngine;
 

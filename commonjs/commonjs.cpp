@@ -13,16 +13,7 @@ CommonJS::CommonJS(QQmlEngine *engine, QJSEngine *scriptEngine)
     m_cache = m_scriptEngine->newObject();
     m_global = m_scriptEngine->newObject();
     m_process = m_scriptEngine->newQObject(new CJSProcess(this));
-
-    m_builtInModules
-            << "assert"
-            << "events"
-            << "freelist"
-            << "url"
-            << "util"
-            << "path"
-            << "punycode"
-            << "querystring";
+    initRequireJSCode();
 }
 
 int CommonJS::minorVersion = 1;
@@ -171,55 +162,55 @@ QString CommonJS::tryModuleUrlAsDirectory(QString &url)
  * @param base
  * @return
  */
-QJSValue CommonJS::resolve(QString url, QString base)
-{
-    QString originalUrl = url;
+//QJSValue CommonJS::resolve(QString url, QString base)
+//{
+//    QString originalUrl = url;
 
-    // Making sure that our base path is a directory
-    if(!base.isEmpty()) {
-        QFileInfo baseDirInfo(base);
-        if(baseDirInfo.suffix() == "js") {
-            base = baseDirInfo.dir().absolutePath();
-        }
-    }
+//    // Making sure that our base path is a directory
+//    if(!base.isEmpty()) {
+//        QFileInfo baseDirInfo(base);
+//        if(baseDirInfo.suffix() == "js") {
+//            base = baseDirInfo.dir().absolutePath();
+//        }
+//    }
 
-    // Shortcurcuiting for built-in modules
-    if(m_builtInModules.contains(url)) {
-        return ":/lib/" + url + ".js";
-    }
+//    // Shortcurcuiting for built-in modules
+//    if(m_builtInModules.contains(url)) {
+//        return ":/lib/" + url + ".js";
+//    }
 
-    // removing prefix from file urls if present
-    if(url.left(7) == "file://") {
-        url = url.mid(7);
-    }
+//    // removing prefix from file urls if present
+//    if(url.left(7) == "file://") {
+//        url = url.mid(7);
+//    }
 
-    // resolving relative path
-    if(url.left(2) == "./" || url.left(3) == "../") {
-        // trying as file
-        url = QDir::cleanPath(base + "/" + url);
-        url = tryModuleUrlAsDirectory(url);
-    } else {
-        // Else if not absolute or qrc path then try recursive
-        // resolving of node_modules folders
-        if(url.at(0) != '/' && url.left(2) != ":/") {
-            if(base.isEmpty()) {
-                base = QFileInfo(url).dir().absolutePath();
-            }
-            QString tempUrl = base + "/node_modules/" + url;
-            url = tryModuleUrlAsDirectory(tempUrl);
-        } else {
-            url = tryModuleUrlAsDirectory(url);
-        }
-    }
+//    // resolving relative path
+//    if(url.left(2) == "./" || url.left(3) == "../") {
+//        // trying as file
+//        url = QDir::cleanPath(base + "/" + url);
+//        url = tryModuleUrlAsDirectory(url);
+//    } else {
+//        // Else if not absolute or qrc path then try recursive
+//        // resolving of node_modules folders
+//        if(url.at(0) != '/' && url.left(2) != ":/") {
+//            if(base.isEmpty()) {
+//                base = QFileInfo(url).dir().absolutePath();
+//            }
+//            QString tempUrl = base + "/node_modules/" + url;
+//            url = tryModuleUrlAsDirectory(tempUrl);
+//        } else {
+//            url = tryModuleUrlAsDirectory(url);
+//        }
+//    }
 
-    QFileInfo info(url);
-    if(info.isReadable() && info.isFile() && info.suffix() == "js") {
-        return url;
-    } else {
-        QString error("new Error('Cannot find module \\'%1\\'')");
-        return m_scriptEngine->evaluate(error.arg(originalUrl));
-    }
-}
+//    QFileInfo info(url);
+//    if(info.isReadable() && info.isFile() && info.suffix() == "js") {
+//        return url;
+//    } else {
+//        QString error("new Error('Cannot find module \\'%1\\'')");
+//        return m_scriptEngine->evaluate(error.arg(originalUrl));
+//    }
+//}
 
 /**
  * @brief Returns QJSValue representing required js file module.exports
@@ -228,17 +219,14 @@ QJSValue CommonJS::resolve(QString url, QString base)
  */
 QJSValue CommonJS::require(QString url)
 {
-    if(!m_builtInModules.contains(url)) {
-        // Getting resolved path relative to calling QML file
-        QString program = QString("Qt.resolvedUrl('%1')").arg(url);
-        url = m_scriptEngine->evaluate(program).toVariant().toUrl().toLocalFile();
-    }
+    // Creating a fake parent module to avoid additional logic inside
+    // main require function to deal with requiring from QML code
+    QString base = m_scriptEngine->evaluate("Qt.resolvedUrl('.')").toString();
+    QJSValue qmlParentModule = m_scriptEngine->newObject();
+    qmlParentModule.setProperty("id", base);
+    qmlParentModule.setProperty("children", m_scriptEngine->newArray());
 
-    if(m_require.isUndefined()) {
-        initRequireJSCode();
-    }
-
-    QJSValue result = m_require.call(QJSValueList() << url);
+    QJSValue result = m_require.call(QJSValueList() << url << qmlParentModule);
     if(result.isError()) {
         m_scriptEngine->evaluate("console.error").call(QJSValueList() << result);
     }
@@ -263,13 +251,15 @@ void CommonJS::initRequireJSCode()
     // Now creating the component to compile our require functions
     component.setData(requireCode.toUtf8(), QUrl());
     QObject *obj = component.create(context);
+    QJSValue jsObj = m_engine->newQObject(obj);
 
     // Getting compiled version of require function from QML object
-    m_require = m_engine->newQObject(obj).property("sandbox");
+    m_require = jsObj.property("requireInitializer");
+    m_resolve = jsObj.property("resolveInitializer");
 
-    // Making CommonJS singleton available inside require
-    // function to be able to refer back to it without
-    // relying on CommonJS QML module being imported into
-    // global namespace (without `as SomeIdentifier`)
+    // Making CommonJS singleton available inside require and resolve function
+    // to be able to refer back to it without relying on CommonJS QML modul
+    // being imported into global namespace (without `as SomeIdentifier`)
     m_require = m_require.call(QJSValueList() << m_scriptEngine->newQObject(this));
+    m_resolve = m_resolve.call(QJSValueList() << m_scriptEngine->newQObject(this));
 }

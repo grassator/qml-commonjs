@@ -2,7 +2,7 @@ import QtQuick 2.0;
 
 QtObject {
 
-    function sandbox(
+    function requireInitializer(
         // this is a real parameter that is passed from C++
         __native
         // these parameters are here to disallow access to global objects
@@ -141,5 +141,51 @@ QtObject {
         __require = __require.bind(__native.global, moduleSpecificLocals);
 
         return __require;
+    }
+
+    function resolveInitializer(__native) {
+
+        var builtInModules = ["assert", "events", "freelist", "url",
+                              "util", "path", "punycode", "querystring"];
+
+        // Creating a function responsible for requiring modules
+        var __resolve = function(module, basePath) {
+            var originalUrl = module;
+
+            // removing trimming slash and file:// prefix
+            basePath = basePath.replace(/^file:\/\/|\/$/gi, '');
+
+            // Shortcurcuiting for built-in modules
+            if(builtInModules.indexOf(module) > -1) {
+                return ":lib/" + module + ".js";
+            }
+
+            var path = __native.require('path');
+
+            // removing prefix from file urls if present
+            if(module.slice(0, 7) === "file://") {
+               module = module.slice(7);
+            }
+
+            // relative path
+            if(module.slice(0, 2) === "./" || module.slice(0, 3) === "../") {
+                module = path.normalize(basePath + "/" + module);
+            } else {
+                // absolute path
+                if(module[0] === "/" || module.slice(0, 2) === ":/") {
+
+                } else { // recursive search inside node_modules folders
+
+                }
+            }
+            console.log(module);
+            return module;
+        };
+
+        // Making sure __resolve is always executed in CommonJS
+        // global context and not in QML global JS context
+        __resolve = __resolve.bind(__native.global);
+
+        return __resolve;
     }
 }
