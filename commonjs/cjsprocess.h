@@ -7,6 +7,7 @@
 #include <QVariantMap>
 #include <QJSValue>
 #include <QDir>
+#include "commonjs.h"
 
 class CJSProcess : public QObject
 {
@@ -19,8 +20,8 @@ class CJSProcess : public QObject
     Q_PROPERTY(QString platform READ platform)
 
 public:
-    explicit CJSProcess(QObject *parent = 0)
-        : QObject(parent), m_tickEventPosted(false) {}
+    explicit CJSProcess(CommonJS *main = 0)
+        : QObject(main), m_main(main), m_tickEventPosted(false) {}
 
     QStringList argv() const { return qApp->arguments(); }
     QString execPath() const { return qApp->applicationFilePath(); }
@@ -30,6 +31,7 @@ public:
     // Since we don't support node-specific arguments this list is always empty
     QStringList execArgv() const { return QStringList(); }
 
+    Q_INVOKABLE QJSValue binding(QString name) { return m_main->binding(name); }
     QString version() const;
     QString platform() const;
     QVariantMap env();
@@ -52,6 +54,7 @@ public:
     Q_INVOKABLE void nextTick(QJSValue callback);
 
 protected:
+    CommonJS *m_main;
     bool m_tickEventPosted;
     QList<QJSValue> m_nextTickCallbacks;
     void customEvent(QEvent *e);

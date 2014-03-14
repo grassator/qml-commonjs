@@ -2,7 +2,7 @@ import QtQuick 2.0;
 
 QtObject {
 
-    function sandbox(
+    function requireInitializer(
         // this is a real parameter that is passed from C++
         __native
         // these parameters are here to disallow access to global objects
@@ -18,6 +18,9 @@ QtObject {
          'process'].forEach(function(key){
             __native.global[key] = __native[key];
         });
+
+        // FIXME needs actual implementation
+        function Buffer(){}
 
         var moduleSpecificLocals = ['__filename', '__dirname',
                                     'module', 'exports'];
@@ -141,5 +144,108 @@ QtObject {
         __require = __require.bind(__native.global, moduleSpecificLocals);
 
         return __require;
+    }
+
+    function createFsStatsConstructor() {
+        function Stats() {}
+
+        Stats.prototype = {
+            dev: 0,
+            mode: 0,
+            nlink: 0,
+            uid: 0,
+            gid: 0,
+            rdev: 0,
+            blksize: 0,
+            ino: 0,
+            size: 0,
+            blocks: 0,
+            atime: 0,
+            mtime: 0,
+            ctime: 0
+        };
+
+        return Stats;
+    }
+
+    function resolveInitializer(__native) {
+
+        var builtInModules = ["_degugger", "_http_agent", "http_client",
+                              "_http_common", "_http_incoming", "_http_outgoing",
+                              "_http_server", "_linklist", "_stream_duplex",
+                              "_stream_passthrough", "_stream_readable",
+                              "_stream_transform", "_stream_writable",
+                              "_tls_legacy", "_tls_wrap",
+                              "assert", "buffer", "child_process", "cluster",
+                              "console", "constants", "crypto", "dgram", "dns",
+                              "domain", "events", "freelist", "fs", "http",
+                              "https", "module", "net", "os", "path",
+                              "punycode", "querystring", "readline", "repl",
+                              "smalloc", "stream", "string_decoder",
+                              "sys", "timers", "tls", "tty", "url", "util",
+                              "vm", "zlib"];
+
+        function checkModuleAsDirectory(module) {
+            if(module.slice(-3) === ".js" || module.slice(-5) === ".json") {
+                return module;
+            }
+
+            var packagePath = module + "/package.json";
+            var mainFileName = "index.js";
+            var fs = __native.require('fs');
+            if(fs.existsSync(packagePath)) {
+                var json = JSON.parse(__native.__loadFile(packagePath));
+                if(json.main) {
+                    mainFileName = json.main;
+                }
+            }
+
+            return module + "/" + mainFileName;
+        }
+
+        // Creating a function responsible for requiring modules
+        var __resolve = function(module, basePath) {
+            var originalUrl = module;
+
+            // removing trimming end slash and file:// prefix
+            basePath = basePath.replace(/^file:\/\/|\/$|\/[^.\/\\]+\.js$/gi, '');
+
+            // Shortcurcuiting for built-in modules
+            if(builtInModules.indexOf(module) > -1) {
+                return ":lib/" + module + ".js";
+            }
+
+            var path = __native.require('path');
+            var fs = __native.require('fs');
+
+            // removing prefix from file urls if present
+            if(module.slice(0, 7) === "file://") {
+               module = module.slice(7);
+            }
+
+            // relative path
+            if(module.slice(0, 2) === "./" || module.slice(0, 3) === "../") {
+                module = path.normalize(basePath + "/" + module);
+                module = checkModuleAsDirectory(module);
+            } else {
+                // recursive upwards search in node_modules folders
+                if(module[0] !== "/" && module.slice(0, 2) !== ":/") {
+                    module = basePath + "/node_modules/" + module;
+                }
+            }
+
+            module = checkModuleAsDirectory(module);
+            if(!fs.existsSync(module)) {
+                return "";
+            }
+
+            return module;
+        };
+
+        // Making sure __resolve is always executed in CommonJS
+        // global context and not in QML global JS context
+        __resolve = __resolve.bind(__native.global);
+
+        return __resolve;
     }
 }

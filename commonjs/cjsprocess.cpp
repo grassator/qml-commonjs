@@ -63,10 +63,6 @@ void CJSProcess::nextTick(QJSValue callback = QJSValue())
     }
 }
 
-/**
- * @brief Provides access to process ENV
- * @return
- */
 QString CJSProcess::version() const
 {
     return QString("%1.%2")

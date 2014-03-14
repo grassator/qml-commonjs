@@ -1,13 +1,54 @@
 <RCC>
     <qresource prefix="/">
         <file>templates/require.qml</file>
+        <file>lib/_debugger.js</file>
+        <file>lib/_http_agent.js</file>
+        <file>lib/_http_client.js</file>
+        <file>lib/_http_common.js</file>
+        <file>lib/_http_incoming.js</file>
+        <file>lib/_http_outgoing.js</file>
+        <file>lib/_http_server.js</file>
+        <file>lib/_linklist.js</file>
+        <file>lib/_stream_duplex.js</file>
+        <file>lib/_stream_passthrough.js</file>
+        <file>lib/_stream_readable.js</file>
+        <file>lib/_stream_transform.js</file>
+        <file>lib/_stream_writable.js</file>
+        <file>lib/_tls_legacy.js</file>
+        <file>lib/_tls_wrap.js</file>
         <file>lib/assert.js</file>
-        <file>lib/util.js</file>
-        <file>lib/path.js</file>
-        <file>lib/querystring.js</file>
+        <file>lib/buffer.js</file>
+        <file>lib/child_process.js</file>
+        <file>lib/cluster.js</file>
+        <file>lib/console.js</file>
+        <file>lib/constants.js</file>
+        <file>lib/crypto.js</file>
+        <file>lib/dgram.js</file>
+        <file>lib/dns.js</file>
+        <file>lib/domain.js</file>
         <file>lib/events.js</file>
-        <file>lib/punycode.js</file>
-        <file>lib/url.js</file>
         <file>lib/freelist.js</file>
+        <file>lib/fs.js</file>
+        <file>lib/http.js</file>
+        <file>lib/https.js</file>
+        <file>lib/module.js</file>
+        <file>lib/net.js</file>
+        <file>lib/os.js</file>
+        <file>lib/path.js</file>
+        <file>lib/punycode.js</file>
+        <file>lib/querystring.js</file>
+        <file>lib/readline.js</file>
+        <file>lib/repl.js</file>
+        <file>lib/smalloc.js</file>
+        <file>lib/stream.js</file>
+        <file>lib/string_decoder.js</file>
+        <file>lib/sys.js</file>
+        <file>lib/timers.js</file>
+        <file>lib/tls.js</file>
+        <file>lib/tty.js</file>
+        <file>lib/url.js</file>
+        <file>lib/util.js</file>
+        <file>lib/vm.js</file>
+        <file>lib/zlib.js</file>
     </qresource>
 </RCC>
