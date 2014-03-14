@@ -22,9 +22,9 @@ try {
      'punycode', 'url', 'freelist'].forEach(function(module){
        assert.ok(require(module));
     });
-//    ['./no-package-json', './package-json', 'testmodule'].forEach(function(module){
-//       assert.equal("works", require(module));
-//    });
+    ['./no-package-json', './package-json', 'testmodule'].forEach(function(module){
+       assert.equal("works", require(module));
+    });
 } catch(e) {
     console.error(e);
 }

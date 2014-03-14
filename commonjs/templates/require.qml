@@ -185,12 +185,30 @@ QtObject {
                               "sys", "timers", "tls", "tty", "url", "util",
                               "vm", "zlib"];
 
+        function checkModuleAsDirectory(module) {
+            if(module.slice(-3) === ".js" || module.slice(-5) === ".json") {
+                return module;
+            }
+
+            var packagePath = module + "/package.json";
+            var mainFileName = "index.js";
+            var fs = __native.require('fs');
+            if(fs.existsSync(packagePath)) {
+                var json = JSON.parse(__native.__loadFile(packagePath));
+                if(json.main) {
+                    mainFileName = json.main;
+                }
+            }
+
+            return module + "/" + mainFileName;
+        }
+
         // Creating a function responsible for requiring modules
         var __resolve = function(module, basePath) {
             var originalUrl = module;
 
-            // removing trimming slash and file:// prefix
-            basePath = basePath.replace(/^file:\/\/|\/$/gi, '');
+            // removing trimming end slash and file:// prefix
+            basePath = basePath.replace(/^file:\/\/|\/$|\/[^.\/\\]+\.js$/gi, '');
 
             // Shortcurcuiting for built-in modules
             if(builtInModules.indexOf(module) > -1) {
@@ -208,15 +226,15 @@ QtObject {
             // relative path
             if(module.slice(0, 2) === "./" || module.slice(0, 3) === "../") {
                 module = path.normalize(basePath + "/" + module);
+                module = checkModuleAsDirectory(module);
             } else {
-                // absolute path
-                if(module[0] === "/" || module.slice(0, 2) === ":/") {
-
-                } else { // recursive search inside node_modules folders
-
+                // recursive upwards search in node_modules folders
+                if(module[0] !== "/" && module.slice(0, 2) !== ":/") {
+                    module = basePath + "/node_modules/" + module;
                 }
             }
 
+            module = checkModuleAsDirectory(module);
             if(!fs.existsSync(module)) {
                 return "";
             }

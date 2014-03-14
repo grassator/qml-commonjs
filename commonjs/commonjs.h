@@ -54,7 +54,6 @@ public:
     QJSEngine *scriptEngine() const { return m_scriptEngine; }
 
 protected:
-    QString tryModuleUrlAsDirectory(QString &url);
     void initRequireJSCode();
     QHash<int, QJSValue> m_setTimeoutCallbacks;
     QHash<int, QJSValue> m_setIntervalCallbacks;
