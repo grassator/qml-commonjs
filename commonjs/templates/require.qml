@@ -205,9 +205,8 @@ QtObject {
 
         // Creating a function responsible for requiring modules
         var __resolve = function(module, basePath) {
-            var originalUrl = module;
 
-            // removing trimming end slash and file:// prefix
+            // removing trimming end slash, file:// prefix and reducing to basename
             basePath = basePath.replace(/^file:\/\/|\/$|\/[^.\/\\]+\.js$/gi, '');
 
             // Shortcurcuiting for built-in modules
@@ -223,6 +222,7 @@ QtObject {
                module = module.slice(7);
             }
 
+
             // relative path
             if(module.slice(0, 2) === "./" || module.slice(0, 3) === "../") {
                 module = path.normalize(basePath + "/" + module);
@@ -230,11 +230,22 @@ QtObject {
             } else {
                 // recursive upwards search in node_modules folders
                 if(module[0] !== "/" && module.slice(0, 2) !== ":/") {
-                    module = basePath + "/node_modules/" + module;
+                    var previousPath, currentPath;
+                    while(previousPath !== basePath) {
+                        currentPath = basePath + "/node_modules/" + module;
+                        currentPath = checkModuleAsDirectory(currentPath);
+                        if(currentPath !== module && fs.existsSync(currentPath)) {
+                            module = currentPath;
+                            break;
+                        }
+                        previousPath = basePath;
+                        basePath = path.normalize(basePath + '/..');
+                    }
+                } else {
+                    module = checkModuleAsDirectory(module);
                 }
             }
 
-            module = checkModuleAsDirectory(module);
             if(!fs.existsSync(module)) {
                 return "";
             }

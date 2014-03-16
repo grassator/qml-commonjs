@@ -9,7 +9,9 @@ qml_folder.source = qml
 qml_folder.target = .
 js_folder.source = js
 js_folder.target = .
-DEPLOYMENTFOLDERS = qml_folder js_folder
+node_modules_folder.source = node_modules
+node_modules_folder.target = .
+DEPLOYMENTFOLDERS = qml_folder js_folder node_modules_folder
 
 MAINPROFILEPWD = $$PWD
 
