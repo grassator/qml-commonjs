@@ -113,25 +113,28 @@ QtObject {
             parentModule = undefined;
             moduleSpecificLocals = undefined;
 
-            try {
-                // Evaluating require'd code. Not using QJSEngine::evaluate
-                // to allow exceptions when requiring modules to naturally
-                // bubble up whereas QJSEngine::evaluate would simply return
-                // the error instead of bubbling it calling code because
-                // of necessary C++ calls
-                // @disable-check M23 // allowing eval
-                eval("try{" +
-                     __native.__loadFile(__filename) +
-                     // there is probably a bug that will not propagate exception
-                     // thrown inside eval() unless it's an instance of Error
-                     "}catch(e){ throw e instanceof Error ? e : new Error(e); }"
-                     );
-            } catch(e) {
-                // Capturing stack trace. Unfortunately lineNumber is wrong with eval
-                e.message += '\n  ' + __filename /* + ':' + e.lineNumber */;
-                throw e;
+            if(__filename.match(/\.json$/)) {
+                module.exports = JSON.parse(__native.__loadFile(__filename));
+            } else {
+                try {
+                    // Evaluating require'd code. Not using QJSEngine::evaluate
+                    // to allow exceptions when requiring modules to naturally
+                    // bubble up whereas QJSEngine::evaluate would simply return
+                    // the error instead of bubbling it calling code because
+                    // of necessary C++ calls
+                    // @disable-check M23 // allowing eval
+                    eval("try{" +
+                         __native.__loadFile(__filename) +
+                         // there is probably a bug that will not propagate exception
+                         // thrown inside eval() unless it's an instance of Error
+                         "}catch(e){ throw e instanceof Error ? e : new Error(e); }"
+                         );
+                } catch(e) {
+                    // Capturing stack trace. Unfortunately lineNumber is wrong with eval
+                    e.message += '\n  ' + __filename /* + ':' + e.lineNumber */;
+                    throw e;
+                }
             }
-
             // Marking module as loaded
             module.loaded = true;
 
@@ -207,7 +210,7 @@ QtObject {
         var __resolve = function(module, basePath) {
 
             // removing trimming end slash, file:// prefix and reducing to basename
-            basePath = basePath.replace(/^file:\/\/|\/$|\/[^.\/\\]+\.js$/gi, '');
+            basePath = basePath.replace(/^file:\/\/|\/$|\/[^.\/\\]+\.js(on)?$/gi, '');
 
             // Shortcurcuiting for built-in modules
             if(builtInModules.indexOf(module) > -1) {

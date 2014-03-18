@@ -26,6 +26,7 @@ try {
      'testmodule', 'inparentfolder'].forEach(function(module){
        assert.equal("works", require(module));
     });
+    assert.equal("works", require('./config.json').somekey);
 } catch(e) {
     console.error(e);
 }
