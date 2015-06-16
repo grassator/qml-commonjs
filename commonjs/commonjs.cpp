@@ -18,7 +18,7 @@ CommonJS::CommonJS(QQmlEngine *engine, QJSEngine *scriptEngine)
     initRequireJSCode();
 }
 
-int CommonJS::minorVersion = 1;
+int CommonJS::minorVersion = 2;
 int CommonJS::majorVersion = 0;
 
 /**
@@ -166,9 +166,8 @@ QJSValue CommonJS::require(QString url)
 {
     // Creating a fake parent module to avoid additional logic inside
     // main require function to deal with requiring from QML code
-    QString base = m_scriptEngine->evaluate("Qt.resolvedUrl('.')").toString();
     QJSValue qmlParentModule = m_scriptEngine->newObject();
-    qmlParentModule.setProperty("id", base);
+    qmlParentModule.setProperty("id", m_engine->baseUrl().toString());
     qmlParentModule.setProperty("children", m_scriptEngine->newArray());
 
     QJSValue result = m_require.call(QJSValueList() << url << qmlParentModule);

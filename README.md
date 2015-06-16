@@ -1,6 +1,16 @@
-Experiment in adding CommonJS support to QML.
+# QML CommonJS
 
-## What works
+Experiment in adding CommonJS module support to QML.
+
+## Changelog
+
+### Version 0.2
+
+* Fixed compatibility with Qt 5.4+ (see changes below for details).
+* **CHANGED** paths for `CommonJS.require` calls from QML are now resolved relative to `QmlEngine::baseUrl()` because evaluating `Qt.resolvedUrl('.')` no longer works from CPP code for some reason.
+* **CHANGED** evaluated module is now wrapped in an [IIFE](https://en.wikipedia.org/wiki/Immediately-invoked_function_expression) to avoid weird problem where function with a name same a property on a global object (e.g. `hasOwnProperty`) would result in an error.
+
+### Version 0.1
 
 * Full [modules](http://nodejs.org/api/modules.html) support
 * `assert` module
@@ -9,19 +19,9 @@ Experiment in adding CommonJS support to QML.
 
 When accessing top-level functions (like `setTimeout`) from QML, you have to use `CommonJS.` prefix because Qt doesn't allow defining global functions.
 
-## Current goals
-
-1. Access to `Buffer` object inside modules
-2. Support for [fs](http://nodejs.org/api/fs.html) (right now only fs.existsSync() works)
-
-## Not a concern
-
-* Speed
-* 100% feature parity with node.js
-
 ## Installation
 
-* Make sure you have [Qt 5.2+](http://qt-project.org) installed.
+* Make sure you have [Qt 5.4+](https://www.qt.io/) installed.
 * Clone this repository.
 * Then run `qmake && make && make install`
 
@@ -29,13 +29,20 @@ When accessing top-level functions (like `setTimeout`) from QML, you have to use
 
 After that you should be able to just import CommonJS as regular QML library and use it in your code:
 
-    import CommonJS 0.1
-    import QtQuick 2.0
-    
-    Rectangle {
-        Component.onCompleted: {
-            CommonJS.setTimeout(function(){
-                var example = CommonJS.require('./example.js');
-            });
-        }
+```js
+import CommonJS 0.2
+import QtQuick 2.0
+
+Rectangle {
+    Component.onCompleted: {
+        CommonJS.setTimeout(function(){
+        	// built-in module
+            var example = CommonJS.require('path');
+        	// relative to QML base url
+            var example = CommonJS.require('./example.js');
+        	// relative to this file
+            var example = CommonJS.require(Qt.resolvedUrl('./example.js'));
+        });
     }
+}
+```

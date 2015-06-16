@@ -121,13 +121,20 @@ QtObject {
                     // to allow exceptions when requiring modules to naturally
                     // bubble up whereas QJSEngine::evaluate would simply return
                     // the error instead of bubbling it calling code because
-                    // of necessary C++ calls
+                    // of necessary C++ calls.
+                    //
+                    // Additionally we have to wrap into an anonymous function
+                    // because if code contains a top-level function who's name
+                    // is the same as one of the properties on global object,
+                    // e.g. hasOwnProperty, then it is considered a write to that
+                    // property and thus results in an error.
+                    //
                     // @disable-check M23 // allowing eval
-                    eval("try{" +
+                    eval("try{(function () {" +
                          __native.__loadFile(__filename) +
                          // there is probably a bug that will not propagate exception
                          // thrown inside eval() unless it's an instance of Error
-                         "}catch(e){ throw e instanceof Error ? e : new Error(e); }"
+                         "}())}catch(e){ throw e instanceof Error ? e : new Error(e); }"
                          );
                 } catch(e) {
                     // Capturing stack trace. Unfortunately lineNumber is wrong with eval
