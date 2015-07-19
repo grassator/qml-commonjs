@@ -2,14 +2,14 @@
 #include "commonjs.h"
 
 // Gives access to process ENV
-#include <stdio.h>
-extern char **environ;
-
 // Necessary for function related to gid / uid
 #ifndef Q_OS_WIN
 #include <sys/types.h>
 #include <unistd.h>
 #endif
+
+#include <stdio.h>
+extern char **environ;
 
 /**
  * @brief This classed is used in implementation of nextTick() method
