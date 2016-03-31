@@ -1,3 +1,7 @@
+# DISCONTINUED
+
+> **Notice:** Unfortunately I can not commit to supporting and further development of this project. Please check [Quickly](http://ibeliever.github.io/quickly/) which provides similar, or better functionality. If you are still interested in becoming an owner / maintainer please submit an issue and I will get back to you.
+
 # QML CommonJS
 
 Experiment in adding CommonJS module support to QML.
